@@ -420,7 +420,7 @@ export default function Home() {
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
           <div className="container mx-auto flex h-16 items-center justify-center px-4 md:px-6 relative">
             <div className="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M2.5 2.5a3.5 3.5 0 0 1 5 0L12 7l4.5-4.5a3.5 3.5 0 0 1 5 5L17 12l4.5 4.5a3.5 3.5 0 0 1-5 5L12 17l-4.5 4.5a3.5 3.5 0 0 1-5-5L7 12 2.5 7.5a3.5 3.5 0 0 1 0-5Z"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><circle cx="12" cy="5" r="1"></circle><path d="m9 20 3-6 3 6"></path><path d="m6 9 6-3 6 3"></path><path d="M17.5 9.4a6.5 6.5 0 0 1-11 0"></path></svg>
               <h1 className="text-xl md:text-2xl font-bold text-primary tracking-tight">
                 BAKANO
               </h1>
@@ -704,3 +704,5 @@ export default function Home() {
     </>
   );
 }
+
+    
