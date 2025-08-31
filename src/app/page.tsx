@@ -48,7 +48,6 @@ import {
   ChevronLeft,
   ChevronRight,
   BadgeCent,
-  CalendarCheck,
   Waves,
 } from 'lucide-react';
 import { AddStudentDialog } from '@/components/add-student-dialog';
@@ -629,3 +628,5 @@ export default function Home() {
     </>
   );
 }
+
+    
