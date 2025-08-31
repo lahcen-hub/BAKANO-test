@@ -353,14 +353,14 @@ export default function Home() {
   
     let nextDate = new Date(today);
   
-    if (today.getDay() === 1 || today.getDay() === 4) { // Monday or Thursday
+    if (today.getDay() === 2 || today.getDay() === 5) { // Tuesday or Friday
       if (isToday(today)) return today;
     }
   
     while (true) {
       nextDate.setDate(nextDate.getDate() + 1);
       const dayOfWeek = nextDate.getDay();
-      if (dayOfWeek === 1 || dayOfWeek === 4) {
+      if (dayOfWeek === 2 || dayOfWeek === 5) {
         return nextDate;
       }
     }
