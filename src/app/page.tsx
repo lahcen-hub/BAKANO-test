@@ -80,72 +80,72 @@ const initialGroups = [
     id: 'groupe-1',
     name: 'Groupe 1',
     students: [
-      { id: '1', name: 'Hamid Lehlou', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '2', name: 'Mounir Rouchdi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '3', name: 'Khalid Ajrar', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '4', name: 'Lahcen ait Ikaid', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '5', name: 'hodaigi Hicham', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '6', name: 'Ayoub Ifakir', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '7', name: 'Azergi Hassan', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '8', name: 'Damoun Abderhim', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '9', name: 'Yassine Ozaoui', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '10', name: 'zaouit mohamed', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '11', name: 'Rachid Dacos', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '12', name: 'Ayoub Lamfadil', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '13', name: 'Mohamed Ikhyati', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '14', name: 'Rachid Ouchikh', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '15', name: 'Adil Ait Addi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '16', name: 'Mourad Rouchdi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '17', name: 'Hicham Bouri', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '18', name: 'Mohamed Dahi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '19', name: 'Imad Imansouri', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '20', name: 'Mohamed Haydoun', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '21', name: 'Hassan Hadaoui', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '22', name: 'Samir Eddarif', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '23', name: 'Said Sougrat', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '24', name: 'Hassan Lmilit', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '25', name: 'Smid Souwat', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-      { id: '26', name: 'Abderrahim Wasir', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '1', name: 'Hamid Lehlou', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '2', name: 'Mounir Rouchdi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '3', name: 'Khalid Ajrar', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '4', name: 'Lahcen ait Ikaid', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '5', name: 'hodaigi Hicham', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '6', name: 'Ayoub Ifakir', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '7', name: 'Azergi Hassan', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '8', name: 'Damoun Abderhim', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '9', name: 'Yassine Ozaoui', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '10', name: 'zaouit mohamed', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '11', name: 'Rachid Dacos', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '12', name: 'Ayoub Lamfadil', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '13', name: 'Mohamed Ikhyati', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '14', name: 'Rachid Ouchikh', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '15', name: 'Adil Ait Addi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '16', name: 'Mourad Rouchdi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '17', name: 'Hicham Bouri', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '18', name: 'Mohamed Dahi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '19', name: 'Imad Imansouri', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '20', name: 'Mohamed Haydoun', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '21', name: 'Hassan Hadaoui', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '22', name: 'Samir Eddarif', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '23', name: 'Said Sougrat', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '24', name: 'Hassan Lmilit', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '25', name: 'Smid Souwat', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+      { id: '26', name: 'Abderrahim Wasir', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
     ],
   },
   {
     id: 'groupe-2',
     name: 'Groupe 2',
     students: [
-        { id: '27', name: 'Yassin Aoussi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '28', name: 'Mohamed Abaoud', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '29', name: 'Majid Douar Akram', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '30', name: 'Youssef Souilem Marchi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '31', name: 'Hassan Boumlou', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '32', name: 'Azragi Abdelrahim', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '33', name: 'El Hassan Boufayed', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '34', name: 'El Maati El Aadli', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '35', name: 'Abou El Aadli', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '36', name: 'Ibrahim El Harouri', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '37', name: 'Said Aghrais', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '38', name: 'Ahmed El Acha', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '39', name: 'Khalid Cherkaoui', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '40', name: 'Ben Saleh Mohamed', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '41', name: 'Ait Dai Mohamed', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '42', name: 'Feraouni Khalid', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '43', name: 'Aziz Sellak', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '44', name: 'Younes Sellak', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '45', name: 'Adil El Attar', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '46', name: 'Abdelkrim Derkaoui', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '47', name: 'Belaid Bikjda', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '48', name: 'Abdellatif Bachtak', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '49', name: 'Tazi Mounsef', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '50', name: 'Abderrahim Yahtani', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '51', name: 'Mohamed Ait Azrki', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '52', name: 'Ismail Azrki', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '53', name: 'Abdellah Tamouh', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '54', name: 'Meskine Mohamed', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-        { id: '55', name: 'Hakim', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+        { id: '27', name: 'Yassin Aoussi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '28', name: 'Mohamed Abaoud', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '29', name: 'Majid Douar Akram', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '30', name: 'Youssef Souilem Marchi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '31', name: 'Hassan Boumlou', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '32', name: 'Azragi Abdelrahim', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '33', name: 'El Hassan Boufayed', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '34', name: 'El Maati El Aadli', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '35', name: 'Abou El Aadli', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '36', name: 'Ibrahim El Harouri', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '37', name: 'Said Aghrais', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '38', name: 'Ahmed El Acha', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '39', name: 'Khalid Cherkaoui', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '40', name: 'Ben Saleh Mohamed', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '41', name: 'Ait Dai Mohamed', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '42', name: 'Feraouni Khalid', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '43', name: 'Aziz Sellak', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '44', name: 'Younes Sellak', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '45', name: 'Adil El Attar', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '46', name: 'Abdelkrim Derkaoui', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '47', name: 'Belaid Bikjda', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '48', name: 'Abdellatif Bachtak', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '49', name: 'Tazi Mounsef', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '50', name: 'Abderrahim Yahtani', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '51', name: 'Mohamed Ait Azrki', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '52', name: 'Ismail Azrki', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '53', name: 'Abdellah Tamouh', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '54', name: 'Meskine Mohamed', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
+        { id: '55', name: 'Hakim', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
     ],
   },
 ];
 
-type Group = {
+export type Group = {
   id: string;
   name: string;
   students: Student[];
@@ -202,19 +202,19 @@ export default function Home() {
     return { totalPaid, totalUnpaid, potentialRevenue };
   }, [students, currentDate]);
 
-  const addStudent = (name: string, fee: number) => {
+  const addStudent = (name: string, groupId: string) => {
     const newStudent: Student = {
       id: crypto.randomUUID(),
       name,
       joinDate: new Date(),
       attendance: {},
       payments: {},
-      monthlyFee: fee,
+      monthlyFee: 200,
     };
     
     setGroups(prevGroups => {
       return prevGroups.map(group => {
-        if (group.id === selectedGroupId) {
+        if (group.id === groupId) {
           return { ...group, students: [...group.students, newStudent] };
         }
         return group;
@@ -223,7 +223,7 @@ export default function Home() {
 
     toast({
       title: 'Élève ajouté',
-      description: `${name} a été ajouté au ${groups.find(g => g.id === selectedGroupId)?.name}.`,
+      description: `${name} a été ajouté au ${groups.find(g => g.id === groupId)?.name}.`,
     });
   };
 
@@ -333,7 +333,11 @@ export default function Home() {
             <h1 className="text-2xl font-bold text-primary tracking-tight">
               PoolSidePal
             </h1>
-            <AddStudentDialog onAddStudent={addStudent} />
+            <AddStudentDialog 
+              onAddStudent={addStudent} 
+              groups={groups} 
+              defaultGroupId={selectedGroupId}
+            />
           </div>
         </header>
 

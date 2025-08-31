@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -18,30 +18,40 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UserPlus } from 'lucide-react';
+import type { Group } from '@/app/page';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }),
-  fee: z.coerce.number().positive({ message: "Les frais doivent être un nombre positif." }),
+  groupId: z.string({ required_error: "Veuillez sélectionner un groupe." }),
 });
 
 type AddStudentDialogProps = {
-  onAddStudent: (name: string, fee: number) => void;
+  onAddStudent: (name: string, groupId: string) => void;
+  groups: Group[];
+  defaultGroupId: string;
 };
 
-export function AddStudentDialog({ onAddStudent }: AddStudentDialogProps) {
+export function AddStudentDialog({ onAddStudent, groups, defaultGroupId }: AddStudentDialogProps) {
   const [open, setOpen] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      fee: undefined,
+      groupId: defaultGroupId,
     },
   });
 
+  useEffect(() => {
+    if (open) {
+      form.reset({ name: "", groupId: defaultGroupId });
+    }
+  }, [open, defaultGroupId, form]);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    onAddStudent(values.name, values.fee);
+    onAddStudent(values.name, values.groupId);
     form.reset();
     setOpen(false);
   }
@@ -57,7 +67,7 @@ export function AddStudentDialog({ onAddStudent }: AddStudentDialogProps) {
         <DialogHeader>
           <DialogTitle>Ajouter un nouvel élève</DialogTitle>
           <DialogDescription>
-            Entrez les informations de l'élève pour l'ajouter à votre liste.
+            Entrez les informations de l'élève pour l'ajouter à un groupe. Les frais mensuels sont fixés à 200 MAD.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -77,13 +87,24 @@ export function AddStudentDialog({ onAddStudent }: AddStudentDialogProps) {
             />
             <FormField
               control={form.control}
-              name="fee"
+              name="groupId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Frais mensuels (€)</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ex: 50" {...field} />
-                  </FormControl>
+                  <FormLabel>Groupe</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner un groupe" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {groups.map((group) => (
+                        <SelectItem key={group.id} value={group.id}>
+                          {group.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
