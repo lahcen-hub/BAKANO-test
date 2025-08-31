@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, type FC } from 'react';
+import { useState, useMemo, type FC, useEffect } from 'react';
 import {
   format,
   startOfMonth,
@@ -77,6 +77,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 const initialGroups = [
   {
@@ -164,14 +166,54 @@ const AttendanceIcon: FC<{ status?: AttendanceStatus }> = ({ status }) => {
 
 
 export default function Home() {
-  const [groups, setGroups] = useState<Group[]>(initialGroups);
+  const [groups, setGroups] = useState<Group[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedGroupId, setSelectedGroupId] = useState<string>(initialGroups[0].id);
+  const [selectedGroupId, setSelectedGroupId] = useState<string>('groupe-1');
   const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
   const [showOnlyUnpaid, setShowOnlyUnpaid] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => {
+    try {
+      const savedGroups = localStorage.getItem('bakano-groups');
+      if (savedGroups) {
+        const parsedGroups = JSON.parse(savedGroups, (key, value) => {
+          if (key === 'joinDate' && value) {
+            return new Date(value);
+          }
+          return value;
+        });
+        setGroups(parsedGroups);
+      } else {
+        setGroups(initialGroups);
+      }
+    } catch (error) {
+      console.error("Could not load groups from localStorage", error);
+      setGroups(initialGroups);
+    } finally {
+      setIsHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isHydrated) {
+      try {
+        localStorage.setItem('bakano-groups', JSON.stringify(groups));
+      } catch (error) {
+        console.error("Could not save groups to localStorage", error);
+      }
+    }
+  }, [groups, isHydrated]);
+
+  useEffect(() => {
+    if (isHydrated && groups.length > 0 && !groups.find(g => g.id === selectedGroupId)) {
+      setSelectedGroupId(groups[0].id);
+    }
+  }, [isHydrated, groups, selectedGroupId]);
+
   const students = useMemo(() => {
+    if (!isHydrated) return [];
     const groupStudents = groups.find(g => g.id === selectedGroupId)?.students ?? [];
     if (!showOnlyUnpaid) {
       return groupStudents;
@@ -182,13 +224,15 @@ export default function Home() {
       const paymentStatus = student.payments[currentMonthStr] ?? 'unpaid';
       return paymentStatus === 'unpaid';
     });
-  }, [groups, selectedGroupId, showOnlyUnpaid, currentDate]);
+  }, [groups, selectedGroupId, showOnlyUnpaid, currentDate, isHydrated]);
 
   const totalStudentsCount = useMemo(() => {
+    if (!isHydrated) return 0;
     return groups.reduce((total, group) => total + group.students.length, 0);
-  }, [groups]);
+  }, [groups, isHydrated]);
 
   const totalFinancialSummary = useMemo(() => {
+    if (!isHydrated) return { totalPaid: 0 };
     const currentMonthStr = format(currentDate, 'yyyy-MM');
     let totalPaid = 0;
     
@@ -205,9 +249,10 @@ export default function Home() {
     });
 
     return { totalPaid };
-  }, [groups, currentDate]);
+  }, [groups, currentDate, isHydrated]);
 
   const financialSummary = useMemo(() => {
+    if (!isHydrated) return { totalPaid: 0, totalUnpaid: 0, potentialRevenue: 0 };
     const currentMonthStr = format(currentDate, 'yyyy-MM');
     let totalPaid = 0;
     let totalUnpaid = 0;
@@ -229,7 +274,7 @@ export default function Home() {
     });
 
     return { totalPaid, totalUnpaid, potentialRevenue };
-  }, [groups, selectedGroupId, currentDate]);
+  }, [groups, selectedGroupId, currentDate, isHydrated]);
 
   const addStudent = (name: string, groupId: string) => {
     const newStudent: Student = {
@@ -455,7 +500,7 @@ export default function Home() {
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  À encaisser ({groups.find(g => g.id === selectedGroupId)?.name})
+                  À encaisser ({groups.find(g => g.id === selectedGroupId)?.name ?? ''})
                 </CardTitle>
                 <BadgeCent className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -481,6 +526,7 @@ export default function Home() {
                       onClick={handleDownloadReport}
                       className="w-full"
                       size="sm"
+                      disabled={!isHydrated}
                   >
                       <Download className="mr-2 h-4 w-4" />
                       Télécharger PDF
@@ -517,7 +563,7 @@ export default function Home() {
                     {showOnlyUnpaid && <Badge variant="destructive">Élèves non payés</Badge>}
                   </CardTitle>
                   <CardDescription>
-                    {`Prochaine séance le ${format(getNextSessionDate, 'eeee d MMMM', { locale: fr })}`}
+                    {isHydrated ? `Prochaine séance le ${format(getNextSessionDate, 'eeee d MMMM', { locale: fr })}` : 'Chargement...'}
                   </CardDescription>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-2">
@@ -525,8 +571,9 @@ export default function Home() {
                     onAddStudent={addStudent} 
                     groups={groups} 
                     defaultGroupId={selectedGroupId}
+                    disabled={!isHydrated}
                   />
-                  <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
+                  <Select value={selectedGroupId} onValueChange={setSelectedGroupId} disabled={!isHydrated}>
                     <SelectTrigger className="w-full sm:w-[180px]">
                       <SelectValue placeholder="Sélectionner un groupe" />
                     </SelectTrigger>
@@ -543,6 +590,7 @@ export default function Home() {
                       variant="outline"
                       size="icon"
                       onClick={() => setCurrentDate(subMonths(currentDate, 1))}
+                      disabled={!isHydrated}
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
@@ -553,7 +601,7 @@ export default function Home() {
                       variant="outline"
                       size="icon"
                       onClick={() => setCurrentDate(addMonths(currentDate, 1))}
-                      disabled={isSameMonth(currentDate, new Date())}
+                      disabled={!isHydrated || isSameMonth(currentDate, new Date())}
                     >
                       <ChevronRight className="h-4 w-4" />
                     </Button>
@@ -577,93 +625,103 @@ export default function Home() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {students.map(student => {
-                      const currentMonthStr = format(currentDate, 'yyyy-MM');
-                      const joinMonth = format(student.joinDate, 'yyyy-MM');
-                      if (joinMonth > currentMonthStr) return null;
-
-                      const paymentStatus =
-                        student.payments[currentMonthStr] ?? 'unpaid';
-                      
-                      const dateStr = format(getNextSessionDate, 'yyyy-MM-dd');
-                      const attendanceStatus = student.attendance[dateStr];
-
-                      const absencesInCurrentMonth = Object.entries(student.attendance).filter(([date, status]) => 
-                        isSameMonth(new Date(date), currentDate) && status === 'absent'
-                      ).length;
-
-                      return (
-                        <TableRow key={student.id} className="transition-colors hover:bg-muted/50">
-                          <TableCell className="font-medium px-2 md:px-4">
-                            <div className="flex items-center gap-2">
-                              {absencesInCurrentMonth > 3 ? (
-                                <TooltipProvider>
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            <AlertTriangle className="h-4 w-4 text-orange-500" />
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>{absencesInCurrentMonth} absences ce mois-ci</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                              ) : (
-                                <div className="flex items-center gap-1 min-w-[36px]">
-                                  {Array.from({ length: absencesInCurrentMonth }).map((_, i) => (
-                                    <Circle key={i} className="h-2 w-2 text-orange-400 fill-current" />
-                                  ))}
-                                </div>
-                              )}
-                              <span>{student.name}</span>
-                            </div>
+                    {!isHydrated ? (
+                      Array.from({ length: 10 }).map((_, i) => (
+                        <TableRow key={i}>
+                          <TableCell colSpan={4}>
+                            <Skeleton className="h-8 w-full" />
                           </TableCell>
-                          <TableCell className="text-center px-0">
+                        </TableRow>
+                      ))
+                    ) : (
+                      students.map(student => {
+                        const currentMonthStr = format(currentDate, 'yyyy-MM');
+                        const joinMonth = format(student.joinDate, 'yyyy-MM');
+                        if (joinMonth > currentMonthStr) return null;
+
+                        const paymentStatus =
+                          student.payments[currentMonthStr] ?? 'unpaid';
+                        
+                        const dateStr = format(getNextSessionDate, 'yyyy-MM-dd');
+                        const attendanceStatus = student.attendance[dateStr];
+
+                        const absencesInCurrentMonth = Object.entries(student.attendance).filter(([date, status]) => 
+                          isSameMonth(new Date(date), currentDate) && status === 'absent'
+                        ).length;
+
+                        return (
+                          <TableRow key={student.id} className="transition-colors hover:bg-muted/50">
+                            <TableCell className="font-medium px-2 md:px-4">
+                              <div className="flex items-center gap-2">
+                                {absencesInCurrentMonth > 3 ? (
+                                  <TooltipProvider>
+                                      <Tooltip>
+                                          <TooltipTrigger>
+                                              <AlertTriangle className="h-4 w-4 text-orange-500" />
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                              <p>{absencesInCurrentMonth} absences ce mois-ci</p>
+                                          </TooltipContent>
+                                      </Tooltip>
+                                  </TooltipProvider>
+                                ) : (
+                                  <div className="flex items-center gap-1 min-w-[36px]">
+                                    {Array.from({ length: absencesInCurrentMonth }).map((_, i) => (
+                                      <Circle key={i} className="h-2 w-2 text-orange-400 fill-current" />
+                                    ))}
+                                  </div>
+                                )}
+                                <span>{student.name}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center px-0">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 md:h-10 md:w-10"
+                                  onClick={() =>
+                                    toggleAttendance(
+                                      student.id,
+                                      getNextSessionDate,
+                                      attendanceStatus
+                                    )
+                                  }
+                                  aria-label={`Marquer la présence pour ${student.name} le ${dateStr}`}
+                                >
+                                  <AttendanceIcon status={attendanceStatus} />
+                                </Button>
+                              </TableCell>
+                            <TableCell className="text-center px-2 md:px-4">
+                              <Button
+                                  variant={
+                                    paymentStatus === 'paid' ? 'secondary' : 'outline'
+                                  }
+                                  size="sm"
+                                  className={`text-xs h-8 ${paymentStatus === 'paid' ? 'bg-green-100 text-green-800 hover:bg-green-200' : ''}`}
+                                  onClick={() => togglePayment(student.id)}
+                                >
+                                  {paymentStatus === 'paid' ? (
+                                    <>
+                                      <Check className="mr-2 h-4 w-4" />
+                                      Payé
+                                    </>
+                                  ) : 'Marquer payé'}
+                                </Button>
+                            </TableCell>
+                            <TableCell className="text-right px-2 md:px-4">
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 md:h-10 md:w-10"
-                                onClick={() =>
-                                  toggleAttendance(
-                                    student.id,
-                                    getNextSessionDate,
-                                    attendanceStatus
-                                  )
-                                }
-                                aria-label={`Marquer la présence pour ${student.name} le ${dateStr}`}
+                                className="h-8 w-8"
+                                onClick={() => setStudentToDelete(student.id)}
                               >
-                                <AttendanceIcon status={attendanceStatus} />
+                                <Trash2 className="h-4 w-4 text-destructive/70 hover:text-destructive" />
                               </Button>
                             </TableCell>
-                          <TableCell className="text-center px-2 md:px-4">
-                            <Button
-                                variant={
-                                  paymentStatus === 'paid' ? 'secondary' : 'outline'
-                                }
-                                size="sm"
-                                className={`text-xs h-8 ${paymentStatus === 'paid' ? 'bg-green-100 text-green-800 hover:bg-green-200' : ''}`}
-                                onClick={() => togglePayment(student.id)}
-                              >
-                                {paymentStatus === 'paid' ? (
-                                  <>
-                                    <Check className="mr-2 h-4 w-4" />
-                                    Payé
-                                  </>
-                                ) : 'Marquer payé'}
-                              </Button>
-                          </TableCell>
-                          <TableCell className="text-right px-2 md:px-4">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => setStudentToDelete(student.id)}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive/70 hover:text-destructive" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                          </TableRow>
+                        );
+                      })
+                    )}
                   </TableBody>
                 </Table>
                 <ScrollBar orientation="horizontal" />
@@ -704,7 +762,3 @@ export default function Home() {
     </>
   );
 }
-
-    
-
-    

@@ -31,9 +31,10 @@ type AddStudentDialogProps = {
   onAddStudent: (name: string, groupId: string) => void;
   groups: Group[];
   defaultGroupId: string;
+  disabled?: boolean;
 };
 
-export function AddStudentDialog({ onAddStudent, groups, defaultGroupId }: AddStudentDialogProps) {
+export function AddStudentDialog({ onAddStudent, groups, defaultGroupId, disabled }: AddStudentDialogProps) {
   const [open, setOpen] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
@@ -43,6 +44,12 @@ export function AddStudentDialog({ onAddStudent, groups, defaultGroupId }: AddSt
       groupId: defaultGroupId,
     },
   });
+
+  useEffect(() => {
+    if (groups.length > 0) {
+      form.setValue('groupId', defaultGroupId);
+    }
+  }, [defaultGroupId, groups, form]);
 
   useEffect(() => {
     if (open) {
@@ -59,7 +66,7 @@ export function AddStudentDialog({ onAddStudent, groups, defaultGroupId }: AddSt
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button disabled={disabled}>
           <UserPlus className="mr-2 h-4 w-4" /> Ajouter un élève
         </Button>
       </DialogTrigger>
@@ -91,7 +98,7 @@ export function AddStudentDialog({ onAddStudent, groups, defaultGroupId }: AddSt
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Groupe</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner un groupe" />
