@@ -433,7 +433,7 @@ export default function Home() {
                   <CardDescription>
                     {todaySession
                       ? `Séance du ${format(todaySession, 'eeee d MMMM', { locale: fr })}`
-                      : "Navigation entre les mois et groupes."}
+                      : "Pas de séance aujourd'hui. Navigation entre les mois et groupes."}
                   </CardDescription>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-2">
