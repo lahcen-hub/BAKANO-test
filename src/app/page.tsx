@@ -570,10 +570,16 @@ export default function Home() {
                         <TableRow key={student.id} className="transition-colors hover:bg-muted/50">
                           <TableCell className="font-medium px-2 md:px-4">
                             <div className="flex items-center gap-2">
-                              {absencesInCurrentMonth > 3 && (
+                              {absencesInCurrentMonth > 3 ? (
                                 <AlertTriangle className="h-4 w-4 text-orange-500" />
+                              ) : (
+                                <div className="flex items-center gap-1">
+                                  {Array.from({ length: absencesInCurrentMonth }).map((_, i) => (
+                                    <Circle key={i} className="h-2 w-2 text-orange-400 fill-current" />
+                                  ))}
+                                </div>
                               )}
-                              {student.name}
+                              <span>{student.name}</span>
                             </div>
                           </TableCell>
                           <TableCell className="text-center px-0">
