@@ -48,7 +48,6 @@ import {
   ChevronLeft,
   ChevronRight,
   BadgeCent,
-  Waves,
 } from 'lucide-react';
 import { AddStudentDialog } from '@/components/add-student-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -159,6 +158,27 @@ const AttendanceIcon: FC<{ status?: AttendanceStatus }> = ({ status }) => {
   if (status === 'absent') return <XCircle className="h-5 w-5 text-red-500" />;
   return <Circle className="h-5 w-5 text-muted-foreground" />;
 };
+
+const SwimmerIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
+    <path d="m20 10-3-1-3 4-2-4-2 3-2.5 2" />
+    <path d="M4.5 14.5.5 16" />
+    <path d="m14 20-3-4-1 3" />
+  </svg>
+);
+
 
 export default function Home() {
   const [groups, setGroups] = useState<Group[]>(initialGroups);
@@ -362,7 +382,7 @@ export default function Home() {
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
           <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
             <div className="flex items-center gap-2">
-              <Waves className="h-6 w-6 text-primary" />
+              <SwimmerIcon className="h-8 w-8 text-primary" />
               <h1 className="text-xl md:text-2xl font-bold text-primary tracking-tight">
                 BAKANO
               </h1>
@@ -628,5 +648,3 @@ export default function Home() {
     </>
   );
 }
-
-    
