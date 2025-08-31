@@ -177,7 +177,9 @@ export default function Home() {
   const classDaysInMonth = useMemo(() => {
     const start = startOfMonth(currentDate);
     const end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
-    return eachDayOfInterval({ start, end }).filter(day => day.getDay() === 1); // Mondays
+    return eachDayOfInterval({ start, end }).filter(
+      day => day.getDay() === 1 || day.getDay() === 4
+    ); // Mondays and Thursdays
   }, [currentDate]);
 
   const financialSummary = useMemo(() => {
