@@ -10,6 +10,7 @@ import {
   isBefore,
   isSameMonth,
   isSameDay,
+  isToday,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Student, AttendanceStatus } from '@/types';
@@ -48,6 +49,7 @@ import {
   ChevronLeft,
   ChevronRight,
   BadgeCent,
+  CalendarCheck,
 } from 'lucide-react';
 import { AddStudentDialog } from '@/components/add-student-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -173,6 +175,15 @@ export default function Home() {
   const students = useMemo(() => {
     return groups.find(g => g.id === selectedGroupId)?.students ?? [];
   }, [groups, selectedGroupId]);
+
+  const todaySession = useMemo(() => {
+    const today = new Date();
+    // Monday is 1, Thursday is 4
+    if (today.getDay() === 1 || today.getDay() === 4) {
+      return today;
+    }
+    return null;
+  }, []);
 
   const classDaysInMonth = useMemo(() => {
     const start = startOfMonth(currentDate);
@@ -420,7 +431,9 @@ export default function Home() {
                 <div>
                   <CardTitle>Suivi des présences et paiements</CardTitle>
                   <CardDescription>
-                    Vue d'ensemble pour le groupe et le mois.
+                    {todaySession
+                      ? `Séance du ${format(todaySession, 'eeee d MMMM', { locale: fr })}`
+                      : "Navigation entre les mois et groupes."}
                   </CardDescription>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-2">
@@ -461,41 +474,38 @@ export default function Home() {
             </CardHeader>
             <CardContent className="px-2 md:px-6">
               <ScrollArea>
-                <Table className="text-xs md:text-sm">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[120px] min-w-[120px] px-2 md:px-4">
-                        Élève
-                      </TableHead>
-                      {classDaysInMonth.map(day => (
-                        <TableHead key={day.toString()} className="text-center px-1 md:px-4">
-                          {format(day, 'dd')}
+                {todaySession ? (
+                  <Table className="text-xs md:text-sm">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[120px] min-w-[120px] px-2 md:px-4">
+                          Élève
                         </TableHead>
-                      ))}
-                      <TableHead className="text-center px-2 md:px-4">Paiement</TableHead>
-                      <TableHead className="text-right px-2 md:px-4">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {students.map(student => {
-                      const currentMonthStr = format(currentDate, 'yyyy-MM');
-                      const joinMonth = format(student.joinDate, 'yyyy-MM');
-                      if (joinMonth > currentMonthStr) return null;
+                        <TableHead className="text-center px-1 md:px-4">
+                          Présence
+                        </TableHead>
+                        <TableHead className="text-center px-2 md:px-4">Paiement</TableHead>
+                        <TableHead className="text-right px-2 md:px-4">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {students.map(student => {
+                        const currentMonthStr = format(currentDate, 'yyyy-MM');
+                        const joinMonth = format(student.joinDate, 'yyyy-MM');
+                        if (joinMonth > currentMonthStr) return null;
 
-                      const paymentStatus =
-                        student.payments[currentMonthStr] ?? 'unpaid';
+                        const paymentStatus =
+                          student.payments[currentMonthStr] ?? 'unpaid';
+                        
+                        const dateStr = format(todaySession, 'yyyy-MM-dd');
+                        const attendanceStatus = student.attendance[dateStr];
 
-                      return (
-                        <TableRow key={student.id} className="transition-colors hover:bg-muted/50">
-                          <TableCell className="font-medium px-2 md:px-4">
-                            {student.name}
-                          </TableCell>
-                          {classDaysInMonth.map(day => {
-                            const dateStr = format(day, 'yyyy-MM-dd');
-                            const attendanceStatus = student.attendance[dateStr];
-                            const isDisabled = isBefore(new Date(), day) && !isSameDay(new Date(), day);
-                            return (
-                              <TableCell key={dateStr} className="text-center px-0">
+                        return (
+                          <TableRow key={student.id} className="transition-colors hover:bg-muted/50">
+                            <TableCell className="font-medium px-2 md:px-4">
+                              {student.name}
+                            </TableCell>
+                            <TableCell className="text-center px-0">
                                 <Button
                                   variant="ghost"
                                   size="icon"
@@ -503,45 +513,51 @@ export default function Home() {
                                   onClick={() =>
                                     toggleAttendance(
                                       student.id,
-                                      day,
+                                      todaySession,
                                       attendanceStatus
                                     )
                                   }
-                                  disabled={isDisabled}
                                   aria-label={`Marquer la présence pour ${student.name} le ${dateStr}`}
                                 >
                                   <AttendanceIcon status={attendanceStatus} />
                                 </Button>
                               </TableCell>
-                            );
-                          })}
-                          <TableCell className="text-center px-2 md:px-4">
-                            <Button
-                              variant={
-                                paymentStatus === 'paid' ? 'secondary' : 'outline'
-                              }
-                              size="sm"
-                              className="text-xs h-8"
-                              onClick={() => togglePayment(student.id)}
-                            >
-                              {paymentStatus === 'paid' ? 'Payé' : 'Marquer payé'}
-                            </Button>
-                          </TableCell>
-                          <TableCell className="text-right px-2 md:px-4">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => setStudentToDelete(student.id)}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive/70 hover:text-destructive" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                            <TableCell className="text-center px-2 md:px-4">
+                              <Button
+                                variant={
+                                  paymentStatus === 'paid' ? 'secondary' : 'outline'
+                                }
+                                size="sm"
+                                className="text-xs h-8"
+                                onClick={() => togglePayment(student.id)}
+                              >
+                                {paymentStatus === 'paid' ? 'Payé' : 'Marquer payé'}
+                              </Button>
+                            </TableCell>
+                            <TableCell className="text-right px-2 md:px-4">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => setStudentToDelete(student.id)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive/70 hover:text-destructive" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="text-center py-10 text-muted-foreground">
+                    <CalendarCheck className="mx-auto h-12 w-12" />
+                    <p className="mt-4 font-medium">Pas de séance aujourd'hui.</p>
+                    <p className="text-sm">
+                      Utilisez les flèches ci-dessus pour consulter les présences des mois précédents.
+                    </p>
+                  </div>
+                )}
                 <ScrollBar orientation="horizontal" />
               </ScrollArea>
             </CardContent>
