@@ -69,6 +69,14 @@ import {
 } from '@/components/ui/alert-dialog';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const initialGroups = [
   {
@@ -305,32 +313,33 @@ export default function Home() {
   };
 
   const handleDownloadReport = () => {
+    const doc = new jsPDF();
     const monthStr = format(currentDate, 'yyyy-MM');
-    const allStudents = groups.flatMap(g => g.students);
+    const monthStrFormatted = format(currentDate, 'MMMM yyyy', { locale: fr });
+    
+    doc.setFontSize(18);
+    doc.text(`Rapport de présence et paiement - ${monthStrFormatted}`, 14, 22);
+
     const daysInMonth = getDaysInMonth(currentDate);
     const monthDates: Date[] = [];
     for (let i = 1; i <= daysInMonth; i++) {
         const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
         const dayOfWeek = date.getDay();
-        if (dayOfWeek === 2 || dayOfWeek === 5) { // Tuesday or Friday
+        if (dayOfWeek === 2 || dayOfWeek === 5) {
             monthDates.push(date);
         }
     }
 
-    let csvContent = "data:text/csv;charset=utf-8,";
-    
-    // Headers
-    const headers = [
-      "ID",
+    const head = [
       "Nom de l'eleve",
       "Groupe",
-      "Statut de paiement",
-      "Total Absences",
+      "Paiement",
+      "Absences",
       ...monthDates.map(d => format(d, 'dd/MM'))
     ];
-    csvContent += headers.join(',') + '\r\n';
+    
+    const body = [];
 
-    // Rows
     groups.forEach(group => {
         group.students.forEach(student => {
             const joinMonth = format(student.joinDate, 'yyyy-MM');
@@ -342,34 +351,43 @@ export default function Home() {
             const attendanceRow = monthDates.map(d => {
                 const dateStr = format(d, 'yyyy-MM-dd');
                 const status = student.attendance[dateStr];
+                if (isBefore(d, student.joinDate)) return '-';
                 if (status === 'absent') {
                     absencesInMonth++;
-                    return 'Absent';
+                    return 'A'; // Absent
                 }
-                if (status === 'present') return 'Présent';
+                if (status === 'present') return 'P'; // Present
                 return 'N/A';
             });
 
-            const row = [
-                student.id,
-                `"${student.name}"`,
+            body.push([
+                student.name,
                 group.name,
                 paymentStatus,
                 absencesInMonth.toString(),
                 ...attendanceRow
-            ];
-            csvContent += row.join(',') + '\r\n';
+            ]);
         });
     });
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    const reportFileName = `rapport_${format(currentDate, 'MMMM_yyyy', { locale: fr })}.csv`;
-    link.setAttribute("download", reportFileName);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    (doc as any).autoTable({
+        head: [head],
+        body: body,
+        startY: 30,
+        theme: 'striped',
+        headStyles: { fillColor: [41, 128, 185] },
+        styles: { font: 'helvetica', fontSize: 8 },
+        columnStyles: {
+            0: { cellWidth: 35 },
+            1: { cellWidth: 20 },
+            2: { cellWidth: 15 },
+            3: { cellWidth: 15, halign: 'center' },
+        }
+    });
+    
+    const reportFileName = `rapport_${format(currentDate, 'MMMM_yyyy', { locale: fr })}.pdf`;
+    doc.save(reportFileName);
+
     toast({
         title: 'Rapport téléchargé',
         description: `${reportFileName} a été téléchargé.`,
@@ -465,10 +483,10 @@ export default function Home() {
                       size="sm"
                   >
                       <Download className="mr-2 h-4 w-4" />
-                      Télécharger
+                      Télécharger PDF
                   </Button>
                   <p className="text-xs text-muted-foreground mt-1">
-                      Rapport CSV pour {format(currentDate, 'MMMM yyyy', { locale: fr })}
+                      Rapport PDF pour {format(currentDate, 'MMMM yyyy', { locale: fr })}
                   </p>
               </CardContent>
             </Card>
