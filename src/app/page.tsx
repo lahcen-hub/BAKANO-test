@@ -9,6 +9,7 @@ import {
   eachDayOfInterval,
   isBefore,
   isSameMonth,
+  isSameDay,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Student, AttendanceStatus } from '@/types';
@@ -72,7 +73,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const initialGroups = [
@@ -332,7 +332,7 @@ export default function Home() {
       <div className="flex flex-col min-h-screen bg-background">
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
           <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-            <h1 className="text-2xl font-bold text-primary tracking-tight">
+            <h1 className="text-xl md:text-2xl font-bold text-primary tracking-tight">
               PoolSidePal
             </h1>
             <AddStudentDialog 
@@ -343,17 +343,17 @@ export default function Home() {
           </div>
         </header>
 
-        <main className="flex-1 container mx-auto p-4 md:p-6 space-y-8">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <main className="flex-1 container mx-auto p-2 md:p-6 space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Revenus du mois ({groups.find(g => g.id === selectedGroupId)?.name})
+                  Revenus ({groups.find(g => g.id === selectedGroupId)?.name})
                 </CardTitle>
                 <Euro className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-xl md:text-2xl font-bold">
                   {financialSummary.totalPaid.toLocaleString('fr-FR', {
                     style: 'currency',
                     currency: 'EUR',
@@ -372,18 +372,18 @@ export default function Home() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Montant à encaisser ({groups.find(g => g.id === selectedGroupId)?.name})
+                  À encaisser ({groups.find(g => g.id === selectedGroupId)?.name})
                 </CardTitle>
                 <BadgeCent className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-destructive">
+                <div className="text-xl md:text-2xl font-bold text-destructive">
                   {financialSummary.totalUnpaid.toLocaleString('fr-FR', {
                     style: 'currency',
                     currency: 'EUR',
                   })}
                 </div>
-                <p className="text-xs text-muted-foreground">Pour le mois en cours</p>
+                <p className="text-xs text-muted-foreground">Mois en cours</p>
               </CardContent>
             </Card>
             <Card className="md:col-span-2 lg:col-span-1">
@@ -398,16 +398,17 @@ export default function Home() {
                   onClick={handleGenerateReport}
                   disabled={isGenerating}
                   className="w-full"
+                  size="sm"
                 >
                   {isGenerating ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
                     <FileText className="mr-2 h-4 w-4" />
                   )}
-                  Générer le rapport
+                  Générer
                 </Button>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Analyse les absences du mois dernier.
+                <p className="text-xs text-muted-foreground mt-1">
+                  Analyse du mois dernier.
                 </p>
               </CardContent>
             </Card>
@@ -415,16 +416,16 @@ export default function Home() {
 
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                   <CardTitle>Suivi des présences et paiements</CardTitle>
                   <CardDescription>
-                    Vue d'ensemble pour le groupe et le mois sélectionné.
+                    Vue d'ensemble pour le groupe et le mois.
                   </CardDescription>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-center gap-2">
                   <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-full sm:w-[180px]">
                       <SelectValue placeholder="Sélectionner un groupe" />
                     </SelectTrigger>
                     <SelectContent>
@@ -443,8 +444,8 @@ export default function Home() {
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
-                    <span className="font-medium text-lg capitalize">
-                      {format(currentDate, 'MMMM yyyy', { locale: fr })}
+                    <span className="font-medium text-base md:text-lg capitalize text-center w-[130px]">
+                      {format(currentDate, 'MMMM yy', { locale: fr })}
                     </span>
                     <Button
                       variant="outline"
@@ -458,21 +459,21 @@ export default function Home() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-2 md:px-6">
               <ScrollArea>
-                <Table>
+                <Table className="text-xs md:text-sm">
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[200px] min-w-[150px]">
+                      <TableHead className="w-[120px] min-w-[120px] px-2 md:px-4">
                         Élève
                       </TableHead>
                       {classDaysInMonth.map(day => (
-                        <TableHead key={day.toString()} className="text-center">
+                        <TableHead key={day.toString()} className="text-center px-1 md:px-4">
                           {format(day, 'dd')}
                         </TableHead>
                       ))}
-                      <TableHead className="text-center">Paiement</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="text-center px-2 md:px-4">Paiement</TableHead>
+                      <TableHead className="text-right px-2 md:px-4">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -486,21 +487,19 @@ export default function Home() {
 
                       return (
                         <TableRow key={student.id} className="transition-colors hover:bg-muted/50">
-                          <TableCell className="font-medium">
+                          <TableCell className="font-medium px-2 md:px-4">
                             {student.name}
                           </TableCell>
                           {classDaysInMonth.map(day => {
                             const dateStr = format(day, 'yyyy-MM-dd');
                             const attendanceStatus = student.attendance[dateStr];
-                            const isDisabled = isBefore(
-                              new Date(),
-                              day
-                            ) && !isSameMonth(new Date(), day);
+                            const isDisabled = isBefore(new Date(), day) && !isSameDay(new Date(), day);
                             return (
-                              <TableCell key={dateStr} className="text-center">
+                              <TableCell key={dateStr} className="text-center px-0">
                                 <Button
                                   variant="ghost"
                                   size="icon"
+                                  className="h-8 w-8 md:h-10 md:w-10"
                                   onClick={() =>
                                     toggleAttendance(
                                       student.id,
@@ -516,21 +515,23 @@ export default function Home() {
                               </TableCell>
                             );
                           })}
-                          <TableCell className="text-center">
+                          <TableCell className="text-center px-2 md:px-4">
                             <Button
                               variant={
                                 paymentStatus === 'paid' ? 'secondary' : 'outline'
                               }
                               size="sm"
+                              className="text-xs h-8"
                               onClick={() => togglePayment(student.id)}
                             >
                               {paymentStatus === 'paid' ? 'Payé' : 'Marquer payé'}
                             </Button>
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="text-right px-2 md:px-4">
                             <Button
                               variant="ghost"
                               size="icon"
+                              className="h-8 w-8"
                               onClick={() => setStudentToDelete(student.id)}
                             >
                               <Trash2 className="h-4 w-4 text-destructive/70 hover:text-destructive" />
