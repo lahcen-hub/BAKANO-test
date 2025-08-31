@@ -51,6 +51,7 @@ import {
   Waves,
   AlertTriangle,
   Check,
+  Users,
 } from 'lucide-react';
 import { AddStudentDialog } from '@/components/add-student-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -178,22 +179,28 @@ export default function Home() {
     return groups.find(g => g.id === selectedGroupId)?.students ?? [];
   }, [groups, selectedGroupId]);
 
-  const todaySession = useMemo(() => {
-    const today = new Date();
-    // Monday is 1, Thursday is 4
-    if (today.getDay() === 1 || today.getDay() === 4) {
-      return today;
-    }
-    return null;
-  }, []);
+  const totalStudentsCount = useMemo(() => {
+    return groups.reduce((total, group) => total + group.students.length, 0);
+  }, [groups]);
 
-  const classDaysInMonth = useMemo(() => {
-    const start = startOfMonth(currentDate);
-    const end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
-    return eachDayOfInterval({ start, end }).filter(
-      day => (day.getDay() === 1 || day.getDay() === 4) && !isBefore(day, new Date())
-    ); // Mondays and Thursdays
-  }, [currentDate]);
+  const totalFinancialSummary = useMemo(() => {
+    const currentMonthStr = format(currentDate, 'yyyy-MM');
+    let totalPaid = 0;
+    
+    const allStudents = groups.flatMap(g => g.students);
+
+    allStudents.forEach(student => {
+      const joinMonth = format(student.joinDate, 'yyyy-MM');
+      if (joinMonth > currentMonthStr) return;
+
+      const paymentStatus = student.payments[currentMonthStr];
+      if (paymentStatus === 'paid') {
+        totalPaid += student.monthlyFee;
+      }
+    });
+
+    return { totalPaid };
+  }, [groups, currentDate]);
 
   const financialSummary = useMemo(() => {
     const currentMonthStr = format(currentDate, 'yyyy-MM');
@@ -379,28 +386,39 @@ export default function Home() {
         </header>
 
         <main className="flex-1 container mx-auto p-2 md:p-6 space-y-6">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Revenus ({groups.find(g => g.id === selectedGroupId)?.name})
+                  Total des élèves
+                </CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl md:text-2xl font-bold">
+                  {totalStudentsCount}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Inscrits dans tous les groupes
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total des revenus
                 </CardTitle>
                 <BadgeCent className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-xl md:text-2xl font-bold">
-                  {financialSummary.totalPaid.toLocaleString('fr-FR', {
+                  {totalFinancialSummary.totalPaid.toLocaleString('fr-FR', {
                     style: 'currency',
                     currency: 'MAD',
                   })}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  sur{' '}
-                  {financialSummary.potentialRevenue.toLocaleString('fr-FR', {
-                    style: 'currency',
-                    currency: 'MAD',
-                  })}{' '}
-                  potentiels
+                  Mois en cours (tous les groupes)
                 </p>
               </CardContent>
             </Card>
@@ -418,10 +436,10 @@ export default function Home() {
                     currency: 'MAD',
                   })}
                 </div>
-                <p className="text-xs text-muted-foreground">Mois en cours</p>
+                <p className="text-xs text-muted-foreground">Mois en cours (groupe sél.)</p>
               </CardContent>
             </Card>
-            <Card className="md:col-span-2 lg:col-span-1">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Rapport d'absences IA
@@ -645,5 +663,3 @@ export default function Home() {
     </>
   );
 }
-
-    
