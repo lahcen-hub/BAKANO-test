@@ -49,6 +49,7 @@ import {
   ChevronRight,
   BadgeCent,
   Waves,
+  AlertTriangle,
 } from 'lucide-react';
 import { AddStudentDialog } from '@/components/add-student-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -519,10 +520,19 @@ export default function Home() {
                       const dateStr = format(getNextSessionDate, 'yyyy-MM-dd');
                       const attendanceStatus = student.attendance[dateStr];
 
+                      const absencesInCurrentMonth = Object.entries(student.attendance).filter(([date, status]) => 
+                        isSameMonth(new Date(date), currentDate) && status === 'absent'
+                      ).length;
+
                       return (
                         <TableRow key={student.id} className="transition-colors hover:bg-muted/50">
                           <TableCell className="font-medium px-2 md:px-4">
-                            {student.name}
+                            <div className="flex items-center gap-2">
+                              {absencesInCurrentMonth > 3 && (
+                                <AlertTriangle className="h-4 w-4 text-orange-500" />
+                              )}
+                              {student.name}
+                            </div>
                           </TableCell>
                           <TableCell className="text-center px-0">
                               <Button
