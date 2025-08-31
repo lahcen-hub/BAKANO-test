@@ -172,10 +172,11 @@ const SwimmerIcon = (props: React.SVGProps<SVGSVGElement>) => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="M12 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
-    <path d="m20 10-3-1-3 4-2-4-2 3-2.5 2" />
-    <path d="M4.5 14.5.5 16" />
-    <path d="m14 20-3-4-1 3" />
+    <path d="M16 9l-2-2-4 4-2-2-2 2-2 2" />
+    <path d="M19 6.5A2.5 2.5 0 0 0 16.5 4" />
+    <path d="M6 13l-2 2-2-2" />
+    <path d="M12 18l-2-2-2 2" />
+    <path d="M12 11l2-2 2 2" />
   </svg>
 );
 
