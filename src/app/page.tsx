@@ -390,13 +390,6 @@ export default function Home() {
                 BAKANO
               </h1>
             </div>
-            <div className="absolute right-4 md:right-6">
-              <AddStudentDialog 
-                onAddStudent={addStudent} 
-                groups={groups} 
-                defaultGroupId={selectedGroupId}
-              />
-            </div>
           </div>
         </header>
 
@@ -500,6 +493,11 @@ export default function Home() {
                   </CardDescription>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-2">
+                  <AddStudentDialog 
+                    onAddStudent={addStudent} 
+                    groups={groups} 
+                    defaultGroupId={selectedGroupId}
+                  />
                   <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
                     <SelectTrigger className="w-full sm:w-[180px]">
                       <SelectValue placeholder="Sélectionner un groupe" />
