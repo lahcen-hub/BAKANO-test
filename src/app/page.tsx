@@ -189,7 +189,7 @@ export default function Home() {
     const start = startOfMonth(currentDate);
     const end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
     return eachDayOfInterval({ start, end }).filter(
-      day => day.getDay() === 1 || day.getDay() === 4
+      day => (day.getDay() === 1 || day.getDay() === 4) && !isBefore(day, new Date())
     ); // Mondays and Thursdays
   }, [currentDate]);
 
@@ -338,6 +338,25 @@ export default function Home() {
     }
   };
 
+  const getNextSessionDate = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+  
+    let nextDate = new Date(today);
+  
+    if (today.getDay() === 1 || today.getDay() === 4) { // Monday or Thursday
+      if (isToday(today)) return today;
+    }
+  
+    while (true) {
+      nextDate.setDate(nextDate.getDate() + 1);
+      const dayOfWeek = nextDate.getDay();
+      if (dayOfWeek === 1 || dayOfWeek === 4) {
+        return nextDate;
+      }
+    }
+  }, [currentDate]);
+
   return (
     <>
       <div className="flex flex-col min-h-screen bg-background">
@@ -431,9 +450,7 @@ export default function Home() {
                 <div>
                   <CardTitle>Suivi des présences et paiements</CardTitle>
                   <CardDescription>
-                    {todaySession
-                      ? `Séance du ${format(todaySession, 'eeee d MMMM', { locale: fr })}`
-                      : "Pas de séance aujourd'hui. Navigation entre les mois et groupes."}
+                    {`Prochaine séance le ${format(getNextSessionDate, 'eeee d MMMM', { locale: fr })}`}
                   </CardDescription>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-2">
@@ -474,90 +491,80 @@ export default function Home() {
             </CardHeader>
             <CardContent className="px-2 md:px-6">
               <ScrollArea>
-                {todaySession ? (
-                  <Table className="text-xs md:text-sm">
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[120px] min-w-[120px] px-2 md:px-4">
-                          Élève
-                        </TableHead>
-                        <TableHead className="text-center px-1 md:px-4">
-                          Présence
-                        </TableHead>
-                        <TableHead className="text-center px-2 md:px-4">Paiement</TableHead>
-                        <TableHead className="text-right px-2 md:px-4">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {students.map(student => {
-                        const currentMonthStr = format(currentDate, 'yyyy-MM');
-                        const joinMonth = format(student.joinDate, 'yyyy-MM');
-                        if (joinMonth > currentMonthStr) return null;
+                <Table className="text-xs md:text-sm">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[120px] min-w-[120px] px-2 md:px-4">
+                        Élève
+                      </TableHead>
+                      <TableHead className="text-center px-1 md:px-4">
+                        Présence (Proch. séance)
+                      </TableHead>
+                      <TableHead className="text-center px-2 md:px-4">Paiement</TableHead>
+                      <TableHead className="text-right px-2 md:px-4">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {students.map(student => {
+                      const currentMonthStr = format(currentDate, 'yyyy-MM');
+                      const joinMonth = format(student.joinDate, 'yyyy-MM');
+                      if (joinMonth > currentMonthStr) return null;
 
-                        const paymentStatus =
-                          student.payments[currentMonthStr] ?? 'unpaid';
-                        
-                        const dateStr = format(todaySession, 'yyyy-MM-dd');
-                        const attendanceStatus = student.attendance[dateStr];
+                      const paymentStatus =
+                        student.payments[currentMonthStr] ?? 'unpaid';
+                      
+                      const dateStr = format(getNextSessionDate, 'yyyy-MM-dd');
+                      const attendanceStatus = student.attendance[dateStr];
 
-                        return (
-                          <TableRow key={student.id} className="transition-colors hover:bg-muted/50">
-                            <TableCell className="font-medium px-2 md:px-4">
-                              {student.name}
-                            </TableCell>
-                            <TableCell className="text-center px-0">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 md:h-10 md:w-10"
-                                  onClick={() =>
-                                    toggleAttendance(
-                                      student.id,
-                                      todaySession,
-                                      attendanceStatus
-                                    )
-                                  }
-                                  aria-label={`Marquer la présence pour ${student.name} le ${dateStr}`}
-                                >
-                                  <AttendanceIcon status={attendanceStatus} />
-                                </Button>
-                              </TableCell>
-                            <TableCell className="text-center px-2 md:px-4">
-                              <Button
-                                variant={
-                                  paymentStatus === 'paid' ? 'secondary' : 'outline'
-                                }
-                                size="sm"
-                                className="text-xs h-8"
-                                onClick={() => togglePayment(student.id)}
-                              >
-                                {paymentStatus === 'paid' ? 'Payé' : 'Marquer payé'}
-                              </Button>
-                            </TableCell>
-                            <TableCell className="text-right px-2 md:px-4">
+                      return (
+                        <TableRow key={student.id} className="transition-colors hover:bg-muted/50">
+                          <TableCell className="font-medium px-2 md:px-4">
+                            {student.name}
+                          </TableCell>
+                          <TableCell className="text-center px-0">
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8"
-                                onClick={() => setStudentToDelete(student.id)}
+                                className="h-8 w-8 md:h-10 md:w-10"
+                                onClick={() =>
+                                  toggleAttendance(
+                                    student.id,
+                                    getNextSessionDate,
+                                    attendanceStatus
+                                  )
+                                }
+                                aria-label={`Marquer la présence pour ${student.name} le ${dateStr}`}
                               >
-                                <Trash2 className="h-4 w-4 text-destructive/70 hover:text-destructive" />
+                                <AttendanceIcon status={attendanceStatus} />
                               </Button>
                             </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <div className="text-center py-10 text-muted-foreground">
-                    <CalendarCheck className="mx-auto h-12 w-12" />
-                    <p className="mt-4 font-medium">Pas de séance aujourd'hui.</p>
-                    <p className="text-sm">
-                      Utilisez les flèches ci-dessus pour consulter les présences des mois précédents.
-                    </p>
-                  </div>
-                )}
+                          <TableCell className="text-center px-2 md:px-4">
+                            <Button
+                              variant={
+                                paymentStatus === 'paid' ? 'secondary' : 'outline'
+                              }
+                              size="sm"
+                              className="text-xs h-8"
+                              onClick={() => togglePayment(student.id)}
+                            >
+                              {paymentStatus === 'paid' ? 'Payé' : 'Marquer payé'}
+                            </Button>
+                          </TableCell>
+                          <TableCell className="text-right px-2 md:px-4">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => setStudentToDelete(student.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive/70 hover:text-destructive" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
                 <ScrollBar orientation="horizontal" />
               </ScrollArea>
             </CardContent>
