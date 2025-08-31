@@ -78,6 +78,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
 
 const initialGroups = [
   {
@@ -173,11 +174,21 @@ export default function Home() {
   );
   const [isGenerating, setIsGenerating] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
+  const [showOnlyUnpaid, setShowOnlyUnpaid] = useState(false);
   const { toast } = useToast();
 
   const students = useMemo(() => {
-    return groups.find(g => g.id === selectedGroupId)?.students ?? [];
-  }, [groups, selectedGroupId]);
+    const groupStudents = groups.find(g => g.id === selectedGroupId)?.students ?? [];
+    if (!showOnlyUnpaid) {
+      return groupStudents;
+    }
+    
+    const currentMonthStr = format(currentDate, 'yyyy-MM');
+    return groupStudents.filter(student => {
+      const paymentStatus = student.payments[currentMonthStr] ?? 'unpaid';
+      return paymentStatus === 'unpaid';
+    });
+  }, [groups, selectedGroupId, showOnlyUnpaid, currentDate]);
 
   const totalStudentsCount = useMemo(() => {
     return groups.reduce((total, group) => total + group.students.length, 0);
@@ -208,7 +219,9 @@ export default function Home() {
     let totalUnpaid = 0;
     let potentialRevenue = 0;
 
-    students.forEach(student => {
+    const groupStudents = groups.find(g => g.id === selectedGroupId)?.students ?? [];
+
+    groupStudents.forEach(student => {
       const joinMonth = format(student.joinDate, 'yyyy-MM');
       if (joinMonth > currentMonthStr) return;
 
@@ -222,7 +235,7 @@ export default function Home() {
     });
 
     return { totalPaid, totalUnpaid, potentialRevenue };
-  }, [students, currentDate]);
+  }, [groups, selectedGroupId, currentDate]);
 
   const addStudent = (name: string, groupId: string) => {
     const newStudent: Student = {
@@ -422,7 +435,10 @@ export default function Home() {
                 </p>
               </CardContent>
             </Card>
-            <Card>
+            <Card 
+              onClick={() => setShowOnlyUnpaid(!showOnlyUnpaid)}
+              className={`cursor-pointer transition-colors ${showOnlyUnpaid ? 'ring-2 ring-destructive' : 'hover:bg-muted/50'}`}
+            >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   À encaisser ({groups.find(g => g.id === selectedGroupId)?.name})
@@ -436,7 +452,9 @@ export default function Home() {
                     currency: 'MAD',
                   })}
                 </div>
-                <p className="text-xs text-muted-foreground">Mois en cours (groupe sél.)</p>
+                <p className="text-xs text-muted-foreground">
+                  {showOnlyUnpaid ? 'Filtre activé' : 'Mois en cours (groupe sél.)'}
+                </p>
               </CardContent>
             </Card>
             <Card>
@@ -471,7 +489,10 @@ export default function Home() {
             <CardHeader>
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                  <CardTitle>Suivi des présences et paiements</CardTitle>
+                  <CardTitle className='flex items-center gap-2'>
+                    Suivi des présences et paiements
+                    {showOnlyUnpaid && <Badge variant="destructive">Élèves non payés</Badge>}
+                  </CardTitle>
                   <CardDescription>
                     {`Prochaine séance le ${format(getNextSessionDate, 'eeee d MMMM', { locale: fr })}`}
                   </CardDescription>
