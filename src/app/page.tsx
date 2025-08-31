@@ -29,6 +29,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   CheckCircle2,
   XCircle,
   Circle,
@@ -68,34 +75,53 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
-const initialStudents: Student[] = [
-  { id: '1', name: 'Hamid Lehlou', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '2', name: 'Mounir Rouchdi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '3', name: 'Khalid Ajrar', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '4', name: 'Lahcen ait Ikaid', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '5', name: 'hodaigi Hicham', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '6', name: 'Ayoub Ifakir', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '7', name: 'Azergi Hassan', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '8', name: 'Damoun Abderhim', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '9', name: 'Yassine Ozaoui', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '10', name: 'zaouit mohamed', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '11', name: 'Rachid Dacos', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '12', name: 'Ayoub Lamfadil', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '13', name: 'Mohamed Ikhyati', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '14', name: 'Rachid Ouchikh', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '15', name: 'Adil Ait Addi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '16', name: 'Mourad Rouchdi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '17', name: 'Hicham Bouri', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '18', name: 'Mohamed Dahi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '19', name: 'Imad Imansouri', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '20', name: 'Mohamed Haydoun', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '21', name: 'Hassan Hadaoui', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '22', name: 'Samir Eddarif', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '23', name: 'Said Sougrat', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '24', name: 'Hassan Lmilit', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '25', name: 'Smid Souwat', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
-  { id: '26', name: 'Abderrahim Wasir', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+const initialGroups = [
+  {
+    id: 'groupe-1',
+    name: 'Groupe 1',
+    students: [
+      { id: '1', name: 'Hamid Lehlou', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '2', name: 'Mounir Rouchdi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '3', name: 'Khalid Ajrar', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '4', name: 'Lahcen ait Ikaid', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '5', name: 'hodaigi Hicham', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '6', name: 'Ayoub Ifakir', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '7', name: 'Azergi Hassan', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '8', name: 'Damoun Abderhim', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '9', name: 'Yassine Ozaoui', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '10', name: 'zaouit mohamed', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '11', name: 'Rachid Dacos', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '12', name: 'Ayoub Lamfadil', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '13', name: 'Mohamed Ikhyati', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+    ],
+  },
+  {
+    id: 'groupe-2',
+    name: 'Groupe 2',
+    students: [
+      { id: '14', name: 'Rachid Ouchikh', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '15', name: 'Adil Ait Addi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '16', name: 'Mourad Rouchdi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '17', name: 'Hicham Bouri', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '18', name: 'Mohamed Dahi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '19', name: 'Imad Imansouri', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '20', name: 'Mohamed Haydoun', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '21', name: 'Hassan Hadaoui', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '22', name: 'Samir Eddarif', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '23', name: 'Said Sougrat', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '24', name: 'Hassan Lmilit', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '25', name: 'Smid Souwat', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+      { id: '26', name: 'Abderrahim Wasir', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 50 },
+    ],
+  },
 ];
+
+type Group = {
+  id: string;
+  name: string;
+  students: Student[];
+};
+
 
 const AttendanceIcon: FC<{ status?: AttendanceStatus }> = ({ status }) => {
   if (status === 'present')
@@ -105,14 +131,19 @@ const AttendanceIcon: FC<{ status?: AttendanceStatus }> = ({ status }) => {
 };
 
 export default function Home() {
-  const [students, setStudents] = useState<Student[]>(initialStudents);
+  const [groups, setGroups] = useState<Group[]>(initialGroups);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedGroupId, setSelectedGroupId] = useState<string>(initialGroups[0].id);
   const [report, setReport] = useState<GenerateAbsenceReportOutput | null>(
     null
   );
   const [isGenerating, setIsGenerating] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const students = useMemo(() => {
+    return groups.find(g => g.id === selectedGroupId)?.students ?? [];
+  }, [groups, selectedGroupId]);
 
   const classDaysInMonth = useMemo(() => {
     const start = startOfMonth(currentDate);
@@ -151,15 +182,31 @@ export default function Home() {
       payments: {},
       monthlyFee: fee,
     };
-    setStudents(prev => [...prev, newStudent]);
+    
+    setGroups(prevGroups => {
+      return prevGroups.map(group => {
+        if (group.id === selectedGroupId) {
+          return { ...group, students: [...group.students, newStudent] };
+        }
+        return group;
+      });
+    });
+
     toast({
       title: 'Élève ajouté',
-      description: `${name} a été ajouté à la liste.`,
+      description: `${name} a été ajouté au ${groups.find(g => g.id === selectedGroupId)?.name}.`,
     });
   };
 
   const deleteStudent = (studentId: string) => {
-    setStudents(students.filter(s => s.id !== studentId));
+    setGroups(prevGroups => {
+      return prevGroups.map(group => {
+        return {
+          ...group,
+          students: group.students.filter(s => s.id !== studentId),
+        };
+      });
+    });
     toast({
       title: 'Élève supprimé',
       description: "L'élève a été retiré de la liste.",
@@ -173,8 +220,9 @@ export default function Home() {
     currentStatus?: AttendanceStatus
   ) => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    setStudents(
-      students.map(s => {
+    setGroups(prevGroups => prevGroups.map(group => ({
+      ...group,
+      students: group.students.map(s => {
         if (s.id !== studentId) return s;
 
         const newAttendance = { ...s.attendance };
@@ -187,13 +235,14 @@ export default function Home() {
         }
         return { ...s, attendance: newAttendance };
       })
-    );
+    })));
   };
 
   const togglePayment = (studentId: string) => {
     const currentMonthStr = format(currentDate, 'yyyy-MM');
-    setStudents(
-      students.map(s => {
+    setGroups(prevGroups => prevGroups.map(group => ({
+      ...group,
+      students: group.students.map(s => {
         if (s.id !== studentId) return s;
 
         const newPayments = { ...s.payments };
@@ -202,7 +251,7 @@ export default function Home() {
 
         return { ...s, payments: newPayments };
       })
-    );
+    })));
   };
 
   const handleGenerateReport = async () => {
@@ -210,7 +259,9 @@ export default function Home() {
     const endDate = new Date();
     const startDate = subMonths(endDate, 1);
 
-    const absenceData = students
+    const allStudents = groups.flatMap(g => g.students);
+
+    const absenceData = allStudents
       .map(student => ({
         candidateName: student.name,
         absentDates: Object.entries(student.attendance)
@@ -262,7 +313,7 @@ export default function Home() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Revenus du mois
+                  Revenus du mois ({groups.find(g => g.id === selectedGroupId)?.name})
                 </CardTitle>
                 <Euro className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -286,7 +337,7 @@ export default function Home() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Montant à encaisser
+                  Montant à encaisser ({groups.find(g => g.id === selectedGroupId)?.name})
                 </CardTitle>
                 <BadgeCent className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -333,28 +384,42 @@ export default function Home() {
                 <div>
                   <CardTitle>Suivi des présences et paiements</CardTitle>
                   <CardDescription>
-                    Vue d'ensemble pour le mois sélectionné.
+                    Vue d'ensemble pour le groupe et le mois sélectionné.
                   </CardDescription>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setCurrentDate(subMonths(currentDate, 1))}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <span className="font-medium text-lg capitalize">
-                    {format(currentDate, 'MMMM yyyy', { locale: fr })}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setCurrentDate(addMonths(currentDate, 1))}
-                    disabled={isSameMonth(currentDate, new Date())}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+                <div className="flex items-center gap-4">
+                  <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Sélectionner un groupe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {groups.map(group => (
+                        <SelectItem key={group.id} value={group.id}>
+                          {group.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setCurrentDate(subMonths(currentDate, 1))}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="font-medium text-lg capitalize">
+                      {format(currentDate, 'MMMM yyyy', { locale: fr })}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setCurrentDate(addMonths(currentDate, 1))}
+                      disabled={isSameMonth(currentDate, new Date())}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardHeader>
