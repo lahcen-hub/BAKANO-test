@@ -383,18 +383,20 @@ export default function Home() {
     <>
       <div className="flex flex-col min-h-screen bg-background">
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
-          <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+          <div className="container mx-auto flex h-16 items-center justify-center px-4 md:px-6 relative">
             <div className="flex items-center gap-2">
               <Waves className="h-8 w-8 text-primary" />
               <h1 className="text-xl md:text-2xl font-bold text-primary tracking-tight">
                 BAKANO
               </h1>
             </div>
-            <AddStudentDialog 
-              onAddStudent={addStudent} 
-              groups={groups} 
-              defaultGroupId={selectedGroupId}
-            />
+            <div className="absolute right-4 md:right-6">
+              <AddStudentDialog 
+                onAddStudent={addStudent} 
+                groups={groups} 
+                defaultGroupId={selectedGroupId}
+              />
+            </div>
           </div>
         </header>
 
