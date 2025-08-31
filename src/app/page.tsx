@@ -11,6 +11,7 @@ import {
   isSameMonth,
   isSameDay,
   isToday,
+  getDaysInMonth,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Student, AttendanceStatus } from '@/types';
@@ -52,21 +53,10 @@ import {
   AlertTriangle,
   Check,
   Users,
+  Download,
 } from 'lucide-react';
 import { AddStudentDialog } from '@/components/add-student-dialog';
 import { useToast } from '@/hooks/use-toast';
-import {
-  generateAbsenceReport,
-  type GenerateAbsenceReportInput,
-  type GenerateAbsenceReportOutput,
-} from '@/ai/flows/generate-absence-report';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -169,10 +159,6 @@ export default function Home() {
   const [groups, setGroups] = useState<Group[]>(initialGroups);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedGroupId, setSelectedGroupId] = useState<string>(initialGroups[0].id);
-  const [report, setReport] = useState<GenerateAbsenceReportOutput | null>(
-    null
-  );
-  const [isGenerating, setIsGenerating] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
   const [showOnlyUnpaid, setShowOnlyUnpaid] = useState(false);
   const { toast } = useToast();
@@ -318,47 +304,78 @@ export default function Home() {
     })));
   };
 
-  const handleGenerateReport = async () => {
-    setIsGenerating(true);
-    const endDate = new Date();
-    const startDate = subMonths(endDate, 1);
-
+  const handleDownloadReport = () => {
+    const monthStr = format(currentDate, 'yyyy-MM');
     const allStudents = groups.flatMap(g => g.students);
-
-    const absenceData = allStudents
-      .map(student => ({
-        candidateName: student.name,
-        absentDates: Object.entries(student.attendance)
-          .filter(([date, status]) => {
-            const d = new Date(date);
-            return (
-              status === 'absent' && d >= startDate && d <= endDate
-            );
-          })
-          .map(([date]) => date),
-      }))
-      .filter(d => d.absentDates.length > 0);
-
-    const input: GenerateAbsenceReportInput = {
-      startDate: format(startDate, 'yyyy-MM-dd'),
-      endDate: format(endDate, 'yyyy-MM-dd'),
-      absences: absenceData,
-    };
-
-    try {
-      const result = await generateAbsenceReport(input);
-      setReport(result);
-    } catch (error) {
-      toast({
-        title: 'Erreur de génération',
-        description: "Impossible de générer le rapport. Veuillez réessayer.",
-        variant: 'destructive',
-      });
-      console.error(error);
-    } finally {
-      setIsGenerating(false);
+    const daysInMonth = getDaysInMonth(currentDate);
+    const monthDates: Date[] = [];
+    for (let i = 1; i <= daysInMonth; i++) {
+        const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
+        const dayOfWeek = date.getDay();
+        if (dayOfWeek === 2 || dayOfWeek === 5) { // Tuesday or Friday
+            monthDates.push(date);
+        }
     }
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+    
+    // Headers
+    const headers = [
+      "ID",
+      "Nom de l'eleve",
+      "Groupe",
+      "Statut de paiement",
+      "Total Absences",
+      ...monthDates.map(d => format(d, 'dd/MM'))
+    ];
+    csvContent += headers.join(',') + '\r\n';
+
+    // Rows
+    groups.forEach(group => {
+        group.students.forEach(student => {
+            const joinMonth = format(student.joinDate, 'yyyy-MM');
+            if (joinMonth > monthStr) return;
+
+            const paymentStatus = student.payments[monthStr] === 'paid' ? 'Payé' : 'Non Payé';
+            
+            let absencesInMonth = 0;
+            const attendanceRow = monthDates.map(d => {
+                const dateStr = format(d, 'yyyy-MM-dd');
+                const status = student.attendance[dateStr];
+                if (status === 'absent') {
+                    absencesInMonth++;
+                    return 'Absent';
+                }
+                if (status === 'present') return 'Présent';
+                return 'N/A';
+            });
+
+            const row = [
+                student.id,
+                `"${student.name}"`,
+                group.name,
+                paymentStatus,
+                absencesInMonth.toString(),
+                ...attendanceRow
+            ];
+            csvContent += row.join(',') + '\r\n';
+        });
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    const reportFileName = `rapport_${format(currentDate, 'MMMM_yyyy', { locale: fr })}.csv`;
+    link.setAttribute("download", reportFileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast({
+        title: 'Rapport téléchargé',
+        description: `${reportFileName} a été téléchargé.`,
+    });
   };
+
 
   const getNextSessionDate = useMemo(() => {
     const today = new Date();
@@ -385,7 +402,7 @@ export default function Home() {
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
           <div className="container mx-auto flex h-16 items-center justify-center px-4 md:px-6 relative">
             <div className="flex items-center gap-2">
-              <Waves className="h-8 w-8 text-primary" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M2.5 2.5a3.5 3.5 0 0 1 5 0L12 7l4.5-4.5a3.5 3.5 0 0 1 5 5L17 12l4.5 4.5a3.5 3.5 0 0 1-5 5L12 17l-4.5 4.5a3.5 3.5 0 0 1-5-5L7 12 2.5 7.5a3.5 3.5 0 0 1 0-5Z"></path></svg>
               <h1 className="text-xl md:text-2xl font-bold text-primary tracking-tight">
                 BAKANO
               </h1>
@@ -438,28 +455,21 @@ export default function Home() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Rapport d'absences IA
-                </CardTitle>
-                <Bot className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Rapport Mensuel</CardTitle>
+                <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <Button
-                  onClick={handleGenerateReport}
-                  disabled={isGenerating}
-                  className="w-full"
-                  size="sm"
-                >
-                  {isGenerating ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <FileText className="mr-2 h-4 w-4" />
-                  )}
-                  Générer
-                </Button>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Analyse du mois dernier.
-                </p>
+                  <Button
+                      onClick={handleDownloadReport}
+                      className="w-full"
+                      size="sm"
+                  >
+                      <Download className="mr-2 h-4 w-4" />
+                      Télécharger
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-1">
+                      Rapport CSV pour {format(currentDate, 'MMMM yyyy', { locale: fr })}
+                  </p>
               </CardContent>
             </Card>
             <Card>
@@ -569,9 +579,18 @@ export default function Home() {
                           <TableCell className="font-medium px-2 md:px-4">
                             <div className="flex items-center gap-2">
                               {absencesInCurrentMonth > 3 ? (
-                                <AlertTriangle className="h-4 w-4 text-orange-500" />
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <AlertTriangle className="h-4 w-4 text-orange-500" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>{absencesInCurrentMonth} absences ce mois-ci</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                               ) : (
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-1 min-w-[36px]">
                                   {Array.from({ length: absencesInCurrentMonth }).map((_, i) => (
                                     <Circle key={i} className="h-2 w-2 text-orange-400 fill-current" />
                                   ))}
@@ -636,29 +655,6 @@ export default function Home() {
         </main>
       </div>
 
-      <Dialog open={!!report} onOpenChange={(open) => !open && setReport(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Rapport d'Absences</DialogTitle>
-            <DialogDescription>
-              Voici un résumé et des recommandations basés sur les données
-              d'absence du mois dernier.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="mt-4 space-y-6 max-h-[60vh] overflow-y-auto pr-6">
-            <div>
-              <h3 className="font-semibold text-lg mb-2">Résumé</h3>
-              <p className="text-muted-foreground">{report?.reportSummary}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold text-lg mb-2">Recommandations</h3>
-              <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
-                {report?.recommendations.map((rec, i) => <li key={i}>{rec}</li>)}
-              </ul>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       <AlertDialog
         open={!!studentToDelete}
