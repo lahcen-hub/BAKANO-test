@@ -50,6 +50,7 @@ import {
   BadgeCent,
   Waves,
   AlertTriangle,
+  Check,
 } from 'lucide-react';
 import { AddStudentDialog } from '@/components/add-student-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -553,15 +554,20 @@ export default function Home() {
                             </TableCell>
                           <TableCell className="text-center px-2 md:px-4">
                             <Button
-                              variant={
-                                paymentStatus === 'paid' ? 'secondary' : 'outline'
-                              }
-                              size="sm"
-                              className="text-xs h-8"
-                              onClick={() => togglePayment(student.id)}
-                            >
-                              {paymentStatus === 'paid' ? 'Payé' : 'Marquer payé'}
-                            </Button>
+                                variant={
+                                  paymentStatus === 'paid' ? 'secondary' : 'outline'
+                                }
+                                size="sm"
+                                className={`text-xs h-8 ${paymentStatus === 'paid' ? 'bg-green-100 text-green-800 hover:bg-green-200' : ''}`}
+                                onClick={() => togglePayment(student.id)}
+                              >
+                                {paymentStatus === 'paid' ? (
+                                  <>
+                                    <Check className="mr-2 h-4 w-4" />
+                                    Payé
+                                  </>
+                                ) : 'Marquer payé'}
+                              </Button>
                           </TableCell>
                           <TableCell className="text-right px-2 md:px-4">
                             <Button
@@ -639,3 +645,5 @@ export default function Home() {
     </>
   );
 }
+
+    
