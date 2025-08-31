@@ -49,6 +49,7 @@ import {
   ChevronRight,
   BadgeCent,
   CalendarCheck,
+  Waves,
 } from 'lucide-react';
 import { AddStudentDialog } from '@/components/add-student-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -361,9 +362,12 @@ export default function Home() {
       <div className="flex flex-col min-h-screen bg-background">
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
           <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-            <h1 className="text-xl md:text-2xl font-bold text-primary tracking-tight">
-              PoolSidePal
-            </h1>
+            <div className="flex items-center gap-2">
+              <Waves className="h-6 w-6 text-primary" />
+              <h1 className="text-xl md:text-2xl font-bold text-primary tracking-tight">
+                BAKANO
+              </h1>
+            </div>
             <AddStudentDialog 
               onAddStudent={addStudent} 
               groups={groups} 
@@ -571,7 +575,7 @@ export default function Home() {
         </main>
       </div>
 
-      <Dialog open={!!report} onOpenChange={() => setReport(null)}>
+      <Dialog open={!!report} onOpenChange={(open) => !open && setReport(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Rapport d'Absences</DialogTitle>

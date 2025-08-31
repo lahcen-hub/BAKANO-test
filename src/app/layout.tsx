@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'PoolSidePal',
-  description: 'Gérez votre piscine en toute simplicité',
+  title: 'BAKANO',
+  description: 'Votre assistant de natation',
 };
 
 export default function RootLayout({
