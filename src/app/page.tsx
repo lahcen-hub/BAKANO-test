@@ -420,7 +420,7 @@ export default function Home() {
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
           <div className="container mx-auto flex h-16 items-center justify-center px-4 md:px-6 relative">
             <div className="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M7 13.5A2.5 2.5 0 1 1 9.5 16a2.5 2.5 0 0 1-2.5-2.5"/><path d="M14.5 9.5A2.5 2.5 0 1 1 17 12a2.5 2.5 0 0 1-2.5-2.5"/><path d="M12 11.5v-2"/><path d="M11 18.5v-2.5"/><path d="M15 13.5v2.5"/><path d="M10 7.5a2.5 2.5 0 1 1 5 0 2.5 2.5 0 0 1-5 0Z"/><path d="M10 12.5a2.5 2.5 0 1 1 5 0 2.5 2.5 0 0 1-5 0Z"/><path d="m4.2 10.8 3.5-1.2.4 1.3-3.5 1.2-1-3.2L7 9.1l.4 1.3-2.5.9"/><path d="m19.8 10.8-3.5-1.2-.4 1.3 3.5 1.2 1-3.2L17 9.1l-.4 1.3 2.5.9"/></svg>
+              <Waves className="h-8 w-8 text-primary" />
               <h1 className="text-xl md:text-2xl font-bold text-primary tracking-tight">
                 BAKANO
               </h1>
