@@ -27,10 +27,10 @@ const GenerateAbsenceReportInputSchema = z.object({
 export type GenerateAbsenceReportInput = z.infer<typeof GenerateAbsenceReportInputSchema>;
 
 const GenerateAbsenceReportOutputSchema = z.object({
-  reportSummary: z.string().describe('A summary of absences during the reporting period.'),
+  reportSummary: z.string().describe('Un résumé des absences pendant la période du rapport.'),
   recommendations: z
     .array(z.string())
-    .describe('A list of recommendations for addressing frequent absences.'),
+    .describe("Une liste de recommandations pour gérer les absences fréquentes."),
 });
 export type GenerateAbsenceReportOutput = z.infer<typeof GenerateAbsenceReportOutputSchema>;
 
@@ -44,17 +44,17 @@ const prompt = ai.definePrompt({
   name: 'generateAbsenceReportPrompt',
   input: {schema: GenerateAbsenceReportInputSchema},
   output: {schema: GenerateAbsenceReportOutputSchema},
-  prompt: `You are an AI assistant for a pool management system. Your task is to generate a report summarizing student absences and provide recommendations for addressing frequent absences.
+  prompt: `Vous êtes un assistant IA pour un système de gestion de piscine. Votre tâche est de générer un rapport en français résumant les absences des élèves et de fournir des recommandations pour gérer les absences fréquentes.
 
-  The report should cover the period from {{startDate}} to {{endDate}}.
+  Le rapport doit couvrir la période du {{startDate}} au {{endDate}}.
 
-  Here's the absence data:
+  Voici les données d'absence :
   {{#each absences}}
-  - Candidate: {{candidateName}}
-    Absent Dates: {{#each absentDates}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+  - Élève : {{candidateName}}
+    Dates d'absence : {{#each absentDates}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
   {{/each}}
 
-  Please provide a concise summary of the absences and offer actionable recommendations for improving attendance.`,
+  Veuillez fournir un résumé concis des absences et proposer des recommandations concrètes pour améliorer l'assiduité. La réponse doit être entièrement en français.`,
 });
 
 const generateAbsenceReportFlow = ai.defineFlow(
