@@ -41,7 +41,6 @@ import {
   CheckCircle2,
   XCircle,
   Circle,
-  Euro,
   FileText,
   Bot,
   Loader2,
@@ -380,20 +379,20 @@ export default function Home() {
                 <CardTitle className="text-sm font-medium">
                   Revenus ({groups.find(g => g.id === selectedGroupId)?.name})
                 </CardTitle>
-                <Euro className="h-4 w-4 text-muted-foreground" />
+                <BadgeCent className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-xl md:text-2xl font-bold">
                   {financialSummary.totalPaid.toLocaleString('fr-FR', {
                     style: 'currency',
-                    currency: 'EUR',
+                    currency: 'MAD',
                   })}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   sur{' '}
                   {financialSummary.potentialRevenue.toLocaleString('fr-FR', {
                     style: 'currency',
-                    currency: 'EUR',
+                    currency: 'MAD',
                   })}{' '}
                   potentiels
                 </p>
@@ -410,7 +409,7 @@ export default function Home() {
                 <div className="text-xl md:text-2xl font-bold text-destructive">
                   {financialSummary.totalUnpaid.toLocaleString('fr-FR', {
                     style: 'currency',
-                    currency: 'EUR',
+                    currency: 'MAD',
                   })}
                 </div>
                 <p className="text-xs text-muted-foreground">Mois en cours</p>
