@@ -570,18 +570,15 @@ export default function Home() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Actions
+                  Total des élèves
                 </CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
-              <CardContent className="flex flex-col gap-2">
-                <AddStudentDialog 
-                  onAddStudent={addStudent} 
-                  groups={groups} 
-                  defaultGroupId={selectedGroupId}
-                  disabled={!isHydrated}
-                />
-                <AddGroupDialog onAddGroup={addGroup} disabled={!isHydrated} />
+              <CardContent>
+                <div className="text-xl md:text-2xl font-bold">{totalStudentsCount}</div>
+                <p className="text-xs text-muted-foreground">
+                  Nombre total d'élèves inscrits
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -592,7 +589,7 @@ export default function Home() {
                 <div>
                   <CardTitle className='flex items-center gap-2'>
                     Suivi des présences et paiements
-                    <Badge>{`Total: ${totalStudentsCount}`}</Badge>
+                    <Badge>{`Groupe: ${groups.find(g => g.id === selectedGroupId)?.name ?? ''}`}</Badge>
                     {showOnlyUnpaid && <Badge variant="destructive">Élèves non payés</Badge>}
                   </CardTitle>
                   <CardDescription>
@@ -600,29 +597,7 @@ export default function Home() {
                   </CardDescription>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-2">
-                  <div className="relative w-full sm:w-auto">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Rechercher un élève..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 w-full sm:w-[200px]"
-                      disabled={!isHydrated}
-                    />
-                  </div>
-                  <Select value={selectedGroupId} onValueChange={setSelectedGroupId} disabled={!isHydrated}>
-                    <SelectTrigger className="w-full sm:w-[180px]">
-                      <SelectValue placeholder="Sélectionner un groupe" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {groups.map(group => (
-                        <SelectItem key={group.id} value={group.id}>
-                          {group.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <div className="flex items-center gap-2">
+                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
                       size="icon"
@@ -642,6 +617,35 @@ export default function Home() {
                     >
                       <ChevronRight className="h-4 w-4" />
                     </Button>
+                  </div>
+                  <Select value={selectedGroupId} onValueChange={setSelectedGroupId} disabled={!isHydrated}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectValue placeholder="Sélectionner un groupe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {groups.map(group => (
+                        <SelectItem key={group.id} value={group.id}>
+                          {group.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <AddStudentDialog 
+                    onAddStudent={addStudent} 
+                    groups={groups} 
+                    defaultGroupId={selectedGroupId}
+                    disabled={!isHydrated}
+                  />
+                  <AddGroupDialog onAddGroup={addGroup} disabled={!isHydrated} />
+                  <div className="relative w-full sm:w-auto">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Rechercher un élève..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 w-full sm:w-[200px]"
+                      disabled={!isHydrated}
+                    />
                   </div>
                 </div>
               </div>
