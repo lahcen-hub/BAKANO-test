@@ -66,7 +66,7 @@ export function AddStudentDialog({ onAddStudent, groups, defaultGroupId, disable
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={disabled}>
+        <Button disabled={disabled} size="sm">
           <UserPlus className="mr-2 h-4 w-4" /> Ajouter un élève
         </Button>
       </DialogTrigger>

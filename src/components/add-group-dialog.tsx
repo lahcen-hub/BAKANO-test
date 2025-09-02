@@ -48,7 +48,7 @@ export function AddGroupDialog({ onAddGroup, disabled }: AddGroupDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={disabled} variant="outline">
+        <Button disabled={disabled} variant="outline" size="sm">
           <Users className="mr-2 h-4 w-4" /> Ajouter un groupe
         </Button>
       </DialogTrigger>

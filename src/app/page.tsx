@@ -55,6 +55,7 @@ import {
   Users,
   Download,
   Search,
+  UserPlus,
 } from 'lucide-react';
 import { AddStudentDialog } from '@/components/add-student-dialog';
 import { AddGroupDialog } from '@/components/add-group-dialog';
@@ -576,9 +577,15 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <div className="text-xl md:text-2xl font-bold">{totalStudentsCount}</div>
-                <p className="text-xs text-muted-foreground">
-                  Nombre total d'élèves inscrits
-                </p>
+                 <div className="flex gap-2 mt-2">
+                  <AddStudentDialog 
+                    onAddStudent={addStudent} 
+                    groups={groups} 
+                    defaultGroupId={selectedGroupId}
+                    disabled={!isHydrated}
+                  />
+                  <AddGroupDialog onAddGroup={addGroup} disabled={!isHydrated} />
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -630,13 +637,6 @@ export default function Home() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <AddStudentDialog 
-                    onAddStudent={addStudent} 
-                    groups={groups} 
-                    defaultGroupId={selectedGroupId}
-                    disabled={!isHydrated}
-                  />
-                  <AddGroupDialog onAddGroup={addGroup} disabled={!isHydrated} />
                   <div className="relative w-full sm:w-auto">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
