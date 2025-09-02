@@ -54,6 +54,7 @@ import {
   Check,
   Users,
   Download,
+  Search,
 } from 'lucide-react';
 import { AddStudentDialog } from '@/components/add-student-dialog';
 import { AddGroupDialog } from '@/components/add-group-dialog';
@@ -79,6 +80,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
 
 
 const initialGroups = [
@@ -172,6 +174,7 @@ export default function Home() {
   const [selectedGroupId, setSelectedGroupId] = useState<string>('groupe-1');
   const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
   const [showOnlyUnpaid, setShowOnlyUnpaid] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isHydrated, setIsHydrated] = useState(false);
   const { toast } = useToast();
 
@@ -215,17 +218,25 @@ export default function Home() {
 
   const students = useMemo(() => {
     if (!isHydrated) return [];
-    const groupStudents = groups.find(g => g.id === selectedGroupId)?.students ?? [];
-    if (!showOnlyUnpaid) {
-      return groupStudents;
+    
+    let filteredStudents = groups.find(g => g.id === selectedGroupId)?.students ?? [];
+
+    if (searchQuery) {
+      filteredStudents = filteredStudents.filter(student =>
+        student.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (showOnlyUnpaid) {
+      const currentMonthStr = format(currentDate, 'yyyy-MM');
+      return filteredStudents.filter(student => {
+        const paymentStatus = student.payments[currentMonthStr] ?? 'unpaid';
+        return paymentStatus === 'unpaid';
+      });
     }
     
-    const currentMonthStr = format(currentDate, 'yyyy-MM');
-    return groupStudents.filter(student => {
-      const paymentStatus = student.payments[currentMonthStr] ?? 'unpaid';
-      return paymentStatus === 'unpaid';
-    });
-  }, [groups, selectedGroupId, showOnlyUnpaid, currentDate, isHydrated]);
+    return filteredStudents;
+  }, [groups, selectedGroupId, showOnlyUnpaid, currentDate, isHydrated, searchQuery]);
 
   const totalStudentsCount = useMemo(() => {
     if (!isHydrated) return 0;
@@ -587,6 +598,16 @@ export default function Home() {
                   </CardDescription>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-2">
+                  <div className="relative w-full sm:w-auto">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Rechercher un élève..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 w-full sm:w-[200px]"
+                      disabled={!isHydrated}
+                    />
+                  </div>
                   <AddStudentDialog 
                     onAddStudent={addStudent} 
                     groups={groups} 
