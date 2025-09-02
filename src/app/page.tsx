@@ -570,17 +570,18 @@ export default function Home() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Total des élèves: {totalStudentsCount}
+                  Actions
                 </CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col gap-2">
                 <AddStudentDialog 
                   onAddStudent={addStudent} 
                   groups={groups} 
                   defaultGroupId={selectedGroupId}
                   disabled={!isHydrated}
                 />
+                <AddGroupDialog onAddGroup={addGroup} disabled={!isHydrated} />
               </CardContent>
             </Card>
           </div>
@@ -591,6 +592,7 @@ export default function Home() {
                 <div>
                   <CardTitle className='flex items-center gap-2'>
                     Suivi des présences et paiements
+                    <Badge>{`Total: ${totalStudentsCount}`}</Badge>
                     {showOnlyUnpaid && <Badge variant="destructive">Élèves non payés</Badge>}
                   </CardTitle>
                   <CardDescription>
@@ -608,7 +610,6 @@ export default function Home() {
                       disabled={!isHydrated}
                     />
                   </div>
-                  <AddGroupDialog onAddGroup={addGroup} disabled={!isHydrated} />
                   <Select value={selectedGroupId} onValueChange={setSelectedGroupId} disabled={!isHydrated}>
                     <SelectTrigger className="w-full sm:w-[180px]">
                       <SelectValue placeholder="Sélectionner un groupe" />
