@@ -12,6 +12,8 @@ import {
   isSameDay,
   isToday,
   getDaysInMonth,
+  nextDay,
+  isThisWeek,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Student, AttendanceStatus } from '@/types';
@@ -84,10 +86,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 
 
-const initialGroups = [
+const initialGroups: Group[] = [
   {
     id: 'groupe-1',
     name: 'Groupe 1',
+    sessionDays: [2, 5], // Tuesday, Friday
     students: [
       { id: '1', name: 'Hamid Lehlou', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
       { id: '2', name: 'Mounir Rouchdi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
@@ -120,6 +123,7 @@ const initialGroups = [
   {
     id: 'groupe-2',
     name: 'Groupe 2',
+    sessionDays: [2, 5], // Tuesday, Friday
     students: [
         { id: '27', name: 'Yassin Aoussi', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
         { id: '28', name: 'Mohamed Abaoud', joinDate: new Date(2024, 6, 1), attendance: {}, payments: {}, monthlyFee: 200 },
@@ -158,6 +162,7 @@ export type Group = {
   id: string;
   name: string;
   students: Student[];
+  sessionDays: number[]; // 0 for Sunday, 1 for Monday, etc.
 };
 
 
@@ -217,10 +222,16 @@ export default function Home() {
     }
   }, [isHydrated, groups, selectedGroupId]);
 
+  const selectedGroup = useMemo(() => {
+    if (!isHydrated) return null;
+    return groups.find(g => g.id === selectedGroupId) ?? null;
+  }, [groups, selectedGroupId, isHydrated]);
+
+
   const students = useMemo(() => {
-    if (!isHydrated) return [];
+    if (!selectedGroup) return [];
     
-    let filteredStudents = groups.find(g => g.id === selectedGroupId)?.students ?? [];
+    let filteredStudents = selectedGroup.students;
 
     if (searchQuery) {
       filteredStudents = filteredStudents.filter(student =>
@@ -237,7 +248,7 @@ export default function Home() {
     }
     
     return filteredStudents;
-  }, [groups, selectedGroupId, showOnlyUnpaid, currentDate, isHydrated, searchQuery]);
+  }, [selectedGroup, showOnlyUnpaid, currentDate, searchQuery]);
 
   const totalStudentsCount = useMemo(() => {
     if (!isHydrated) return 0;
@@ -265,15 +276,13 @@ export default function Home() {
   }, [groups, currentDate, isHydrated]);
 
   const financialSummary = useMemo(() => {
-    if (!isHydrated) return { totalPaid: 0, totalUnpaid: 0, potentialRevenue: 0 };
+    if (!selectedGroup) return { totalPaid: 0, totalUnpaid: 0, potentialRevenue: 0 };
     const currentMonthStr = format(currentDate, 'yyyy-MM');
     let totalPaid = 0;
     let totalUnpaid = 0;
     let potentialRevenue = 0;
 
-    const groupStudents = groups.find(g => g.id === selectedGroupId)?.students ?? [];
-
-    groupStudents.forEach(student => {
+    selectedGroup.students.forEach(student => {
       const joinMonth = format(student.joinDate, 'yyyy-MM');
       if (joinMonth > currentMonthStr) return;
 
@@ -287,7 +296,7 @@ export default function Home() {
     });
 
     return { totalPaid, totalUnpaid, potentialRevenue };
-  }, [groups, selectedGroupId, currentDate, isHydrated]);
+  }, [selectedGroup, currentDate]);
 
   const addStudent = (name: string, groupId: string) => {
     const newStudent: Student = {
@@ -314,11 +323,12 @@ export default function Home() {
     });
   };
 
-  const addGroup = (name: string) => {
+  const addGroup = (name: string, sessionDays: number[]) => {
     const newGroup: Group = {
       id: crypto.randomUUID(),
       name,
       students: [],
+      sessionDays,
     };
     
     setGroups(prevGroups => {
@@ -398,26 +408,32 @@ export default function Home() {
     doc.text(`Rapport de présence et paiement - ${monthStrFormatted}`, 14, 22);
 
     const daysInMonth = getDaysInMonth(currentDate);
-    const monthDates: Date[] = [];
-    for (let i = 1; i <= daysInMonth; i++) {
-        const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
-        const dayOfWeek = date.getDay();
-        if (dayOfWeek === 2 || dayOfWeek === 5) {
-            monthDates.push(date);
-        }
-    }
-
-    const head = [
+    
+    const head: any[] = [
       "Nom de l'eleve",
       "Groupe",
       "Paiement",
       "Absences",
-      ...monthDates.map(d => format(d, 'dd/MM'))
     ];
     
-    const body = [];
+    const body: any[] = [];
 
     groups.forEach(group => {
+        const monthDates: Date[] = [];
+        for (let i = 1; i <= daysInMonth; i++) {
+            const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
+            if (group.sessionDays.includes(date.getDay())) {
+                monthDates.push(date);
+            }
+        }
+
+        const groupHead = [
+            ...head,
+            ...monthDates.map(d => format(d, 'dd/MM'))
+        ];
+        
+        const groupBody: any[] = [];
+
         group.students.forEach(student => {
             const joinMonth = format(student.joinDate, 'yyyy-MM');
             if (joinMonth > monthStr) return;
@@ -437,7 +453,7 @@ export default function Home() {
                 return 'N/A';
             });
 
-            body.push([
+            groupBody.push([
                 student.name,
                 group.name,
                 paymentStatus,
@@ -445,20 +461,22 @@ export default function Home() {
                 ...attendanceRow
             ]);
         });
-    });
 
-    (doc as any).autoTable({
-        head: [head],
-        body: body,
-        startY: 30,
-        theme: 'striped',
-        headStyles: { fillColor: [41, 128, 185] },
-        styles: { font: 'helvetica', fontSize: 8 },
-        columnStyles: {
-            0: { cellWidth: 35 },
-            1: { cellWidth: 20 },
-            2: { cellWidth: 15 },
-            3: { cellWidth: 15, halign: 'center' },
+        if (groupBody.length > 0) {
+            (doc as any).autoTable({
+                head: [groupHead],
+                body: groupBody,
+                startY: (doc as any).lastAutoTable.finalY + 10 || 30,
+                theme: 'striped',
+                headStyles: { fillColor: [41, 128, 185] },
+                styles: { font: 'helvetica', fontSize: 8 },
+                columnStyles: {
+                    0: { cellWidth: 35 },
+                    1: { cellWidth: 20 },
+                    2: { cellWidth: 15 },
+                    3: { cellWidth: 15, halign: 'center' },
+                }
+            });
         }
     });
     
@@ -473,23 +491,23 @@ export default function Home() {
 
 
   const getNextSessionDate = useMemo(() => {
+    if (!selectedGroup) return new Date();
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-  
-    let nextDate = new Date(today);
-  
-    if (today.getDay() === 2 || today.getDay() === 5) { // Tuesday or Friday
-      if (isToday(today)) return today;
-    }
-  
-    while (true) {
-      nextDate.setDate(nextDate.getDate() + 1);
-      const dayOfWeek = nextDate.getDay();
-      if (dayOfWeek === 2 || dayOfWeek === 5) {
+
+    const sessionDays = selectedGroup.sessionDays.sort((a,b) => a - b);
+    
+    for(let i=0; i<7; i++){
+      const nextDate = new Date(today);
+      nextDate.setDate(today.getDate() + i);
+      if(sessionDays.includes(nextDate.getDay())){
         return nextDate;
       }
     }
-  }, [currentDate]);
+
+    return today;
+  }, [selectedGroup]);
 
   return (
     <>
@@ -532,7 +550,7 @@ export default function Home() {
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  À encaisser ({groups.find(g => g.id === selectedGroupId)?.name ?? ''})
+                  À encaisser ({selectedGroup?.name ?? ''})
                 </CardTitle>
                 <BadgeCent className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -596,11 +614,11 @@ export default function Home() {
                 <div>
                   <CardTitle className='flex items-center gap-2'>
                     Suivi des présences et paiements
-                    <Badge>{`Groupe: ${groups.find(g => g.id === selectedGroupId)?.name ?? ''}`}</Badge>
+                    <Badge>{`Groupe: ${selectedGroup?.name ?? ''}`}</Badge>
                     {showOnlyUnpaid && <Badge variant="destructive">Élèves non payés</Badge>}
                   </CardTitle>
                   <CardDescription>
-                    {isHydrated ? `Prochaine séance le ${format(getNextSessionDate, 'eeee d MMMM', { locale: fr })}` : 'Chargement...'}
+                    {isHydrated && selectedGroup ? `Prochaine séance le ${format(getNextSessionDate, 'eeee d MMMM', { locale: fr })}` : 'Chargement...'}
                   </CardDescription>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center gap-2">
@@ -728,6 +746,7 @@ export default function Home() {
                                     )
                                   }
                                   aria-label={`Marquer la présence pour ${student.name} le ${dateStr}`}
+                                  disabled={!selectedGroup}
                                 >
                                   <AttendanceIcon status={attendanceStatus} />
                                 </Button>
