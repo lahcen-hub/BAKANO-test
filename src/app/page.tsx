@@ -192,6 +192,9 @@ export default function Home() {
           if (key === 'joinDate' && value) {
             return new Date(value);
           }
+          if (key === 'sessionDays' && !value) {
+            return [2, 5]; // Default session days
+          }
           return value;
         });
         setGroups(parsedGroups);
@@ -420,9 +423,10 @@ export default function Home() {
 
     groups.forEach(group => {
         const monthDates: Date[] = [];
+        const sessionDays = group.sessionDays || [];
         for (let i = 1; i <= daysInMonth; i++) {
             const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
-            if (group.sessionDays.includes(date.getDay())) {
+            if (sessionDays.includes(date.getDay())) {
                 monthDates.push(date);
             }
         }
@@ -491,12 +495,12 @@ export default function Home() {
 
 
   const getNextSessionDate = useMemo(() => {
-    if (!selectedGroup) return new Date();
+    if (!selectedGroup || !selectedGroup.sessionDays) return new Date();
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const sessionDays = selectedGroup.sessionDays.sort((a,b) => a - b);
+    const sessionDays = selectedGroup.sessionDays.slice().sort((a, b) => a - b);
     
     for(let i=0; i<7; i++){
       const nextDate = new Date(today);
