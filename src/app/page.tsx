@@ -56,6 +56,7 @@ import {
   Download,
 } from 'lucide-react';
 import { AddStudentDialog } from '@/components/add-student-dialog';
+import { AddGroupDialog } from '@/components/add-group-dialog';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -298,6 +299,25 @@ export default function Home() {
     toast({
       title: 'Élève ajouté',
       description: `${name} a été ajouté au ${groups.find(g => g.id === groupId)?.name}.`,
+    });
+  };
+
+  const addGroup = (name: string) => {
+    const newGroup: Group = {
+      id: crypto.randomUUID(),
+      name,
+      students: [],
+    };
+    
+    setGroups(prevGroups => {
+      const newGroups = [...prevGroups, newGroup];
+      setSelectedGroupId(newGroup.id);
+      return newGroups;
+    });
+
+    toast({
+      title: 'Groupe ajouté',
+      description: `Le groupe "${name}" a été créé.`,
     });
   };
 
@@ -573,6 +593,7 @@ export default function Home() {
                     defaultGroupId={selectedGroupId}
                     disabled={!isHydrated}
                   />
+                  <AddGroupDialog onAddGroup={addGroup} disabled={!isHydrated} />
                   <Select value={selectedGroupId} onValueChange={setSelectedGroupId} disabled={!isHydrated}>
                     <SelectTrigger className="w-full sm:w-[180px]">
                       <SelectValue placeholder="Sélectionner un groupe" />
