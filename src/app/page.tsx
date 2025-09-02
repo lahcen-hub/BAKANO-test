@@ -454,10 +454,10 @@ export default function Home() {
             const dateStr = format(d, 'yyyy-MM-dd');
             const status = student.attendance[dateStr];
             if (isBefore(d, student.joinDate)) return '-';
-            if (status === 'absent') {
+            if (isSameMonth(new Date(dateStr), currentDate) && status === 'absent') {
                 absencesInMonth++;
-                return 'A'; // Absent
             }
+            if (status === 'absent') return 'A'; // Absent
             if (status === 'present') return 'P'; // Present
             return 'N/A';
         });
