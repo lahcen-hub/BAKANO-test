@@ -459,7 +459,7 @@ export default function Home() {
             }
             if (status === 'absent') return 'A'; // Absent
             if (status === 'present') return 'P'; // Present
-            return 'N/A';
+            return ''; // Empty for future or no status
         });
 
         tableBody.push([
@@ -830,3 +830,5 @@ export default function Home() {
     </>
   );
 }
+
+    
