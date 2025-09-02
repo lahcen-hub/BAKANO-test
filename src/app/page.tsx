@@ -403,88 +403,92 @@ export default function Home() {
   };
 
   const handleDownloadReport = () => {
+    if (!selectedGroup) {
+      toast({
+        title: 'Erreur',
+        description: 'Veuillez sélectionner un groupe pour télécharger le rapport.',
+        variant: 'destructive',
+      });
+      return;
+    }
+  
     const doc = new jsPDF();
     const monthStr = format(currentDate, 'yyyy-MM');
     const monthStrFormatted = format(currentDate, 'MMMM yyyy', { locale: fr });
     
     doc.setFontSize(18);
-    doc.text(`Rapport de présence et paiement - ${monthStrFormatted}`, 14, 22);
+    doc.text(`Rapport pour ${selectedGroup.name} - ${monthStrFormatted}`, 14, 22);
 
     const daysInMonth = getDaysInMonth(currentDate);
     
     const head: any[] = [
       "Nom de l'eleve",
-      "Groupe",
       "Paiement",
       "Absences",
     ];
     
-    const body: any[] = [];
-
-    groups.forEach(group => {
-        const monthDates: Date[] = [];
-        const sessionDays = group.sessionDays || [];
-        for (let i = 1; i <= daysInMonth; i++) {
-            const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
-            if (sessionDays.includes(date.getDay())) {
-                monthDates.push(date);
-            }
+    const monthDates: Date[] = [];
+    const sessionDays = selectedGroup.sessionDays || [];
+    for (let i = 1; i <= daysInMonth; i++) {
+        const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
+        if (sessionDays.includes(date.getDay())) {
+            monthDates.push(date);
         }
+    }
 
-        const groupHead = [
-            ...head,
-            ...monthDates.map(d => format(d, 'dd/MM'))
-        ];
+    const tableHead = [
+      ...head,
+      ...monthDates.map(d => format(d, 'dd/MM'))
+    ];
+    
+    const tableBody: any[] = [];
+
+    selectedGroup.students.forEach(student => {
+        const joinMonth = format(student.joinDate, 'yyyy-MM');
+        if (joinMonth > monthStr) return;
+
+        const paymentStatus = student.payments[monthStr] === 'paid' ? 'Payé' : 'Non Payé';
         
-        const groupBody: any[] = [];
-
-        group.students.forEach(student => {
-            const joinMonth = format(student.joinDate, 'yyyy-MM');
-            if (joinMonth > monthStr) return;
-
-            const paymentStatus = student.payments[monthStr] === 'paid' ? 'Payé' : 'Non Payé';
-            
-            let absencesInMonth = 0;
-            const attendanceRow = monthDates.map(d => {
-                const dateStr = format(d, 'yyyy-MM-dd');
-                const status = student.attendance[dateStr];
-                if (isBefore(d, student.joinDate)) return '-';
-                if (status === 'absent') {
-                    absencesInMonth++;
-                    return 'A'; // Absent
-                }
-                if (status === 'present') return 'P'; // Present
-                return 'N/A';
-            });
-
-            groupBody.push([
-                student.name,
-                group.name,
-                paymentStatus,
-                absencesInMonth.toString(),
-                ...attendanceRow
-            ]);
+        let absencesInMonth = 0;
+        const attendanceRow = monthDates.map(d => {
+            const dateStr = format(d, 'yyyy-MM-dd');
+            const status = student.attendance[dateStr];
+            if (isBefore(d, student.joinDate)) return '-';
+            if (status === 'absent') {
+                absencesInMonth++;
+                return 'A'; // Absent
+            }
+            if (status === 'present') return 'P'; // Present
+            return 'N/A';
         });
 
-        if (groupBody.length > 0) {
-            (doc as any).autoTable({
-                head: [groupHead],
-                body: groupBody,
-                startY: (doc as any).lastAutoTable.finalY + 10 || 30,
-                theme: 'striped',
-                headStyles: { fillColor: [41, 128, 185] },
-                styles: { font: 'helvetica', fontSize: 8 },
-                columnStyles: {
-                    0: { cellWidth: 35 },
-                    1: { cellWidth: 20 },
-                    2: { cellWidth: 15 },
-                    3: { cellWidth: 15, halign: 'center' },
-                }
-            });
-        }
+        tableBody.push([
+            student.name,
+            paymentStatus,
+            absencesInMonth.toString(),
+            ...attendanceRow
+        ]);
     });
+
+    if (tableBody.length > 0) {
+        (doc as any).autoTable({
+            head: [tableHead],
+            body: tableBody,
+            startY: 30,
+            theme: 'striped',
+            headStyles: { fillColor: [41, 128, 185] },
+            styles: { font: 'helvetica', fontSize: 8 },
+            columnStyles: {
+                0: { cellWidth: 35 },
+                1: { cellWidth: 15 },
+                2: { cellWidth: 15, halign: 'center' },
+            }
+        });
+    } else {
+        doc.text("Aucun élève dans ce groupe pour le mois sélectionné.", 14, 40);
+    }
     
-    const reportFileName = `rapport_${format(currentDate, 'MMMM_yyyy', { locale: fr })}.pdf`;
+    const reportFileName = `rapport_${selectedGroup.name.replace(/ /g, '_')}_${format(currentDate, 'MMMM_yyyy', { locale: fr })}.pdf`;
     doc.save(reportFileName);
 
     toast({
@@ -580,13 +584,13 @@ export default function Home() {
                       onClick={handleDownloadReport}
                       className="w-full"
                       size="sm"
-                      disabled={!isHydrated}
+                      disabled={!isHydrated || !selectedGroup}
                   >
                       <Download className="mr-2 h-4 w-4" />
                       Télécharger PDF
                   </Button>
                   <p className="text-xs text-muted-foreground mt-1">
-                      Rapport PDF pour {format(currentDate, 'MMMM yyyy', { locale: fr })}
+                      Rapport pour {selectedGroup?.name ?? '...'}
                   </p>
               </CardContent>
             </Card>
