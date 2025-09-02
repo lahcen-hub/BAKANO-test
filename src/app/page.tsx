@@ -570,17 +570,17 @@ export default function Home() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Total des élèves
+                  Total des élèves: {totalStudentsCount}
                 </CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-xl md:text-2xl font-bold">
-                  {totalStudentsCount}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Inscrits dans tous les groupes
-                </p>
+                <AddStudentDialog 
+                  onAddStudent={addStudent} 
+                  groups={groups} 
+                  defaultGroupId={selectedGroupId}
+                  disabled={!isHydrated}
+                />
               </CardContent>
             </Card>
           </div>
@@ -608,12 +608,6 @@ export default function Home() {
                       disabled={!isHydrated}
                     />
                   </div>
-                  <AddStudentDialog 
-                    onAddStudent={addStudent} 
-                    groups={groups} 
-                    defaultGroupId={selectedGroupId}
-                    disabled={!isHydrated}
-                  />
                   <AddGroupDialog onAddGroup={addGroup} disabled={!isHydrated} />
                   <Select value={selectedGroupId} onValueChange={setSelectedGroupId} disabled={!isHydrated}>
                     <SelectTrigger className="w-full sm:w-[180px]">
