@@ -86,6 +86,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { EditStudentDialog } from '@/components/edit-student-dialog';
+import { EditGroupDialog } from '@/components/edit-group-dialog';
 
 
 const initialGroups: Group[] = [
@@ -182,6 +183,7 @@ export default function Home() {
   const [selectedGroupId, setSelectedGroupId] = useState<string>('groupe-1');
   const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
   const [studentToEdit, setStudentToEdit] = useState<Student | null>(null);
+  const [groupToEdit, setGroupToEdit] = useState<Group | null>(null);
   const [showOnlyUnpaid, setShowOnlyUnpaid] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isHydrated, setIsHydrated] = useState(false);
@@ -362,6 +364,16 @@ export default function Home() {
     });
   };
 
+  const updateGroup = (groupId: string, newName: string, sessionDays: number[]) => {
+    setGroups(prevGroups => prevGroups.map(group => 
+      group.id === groupId ? { ...group, name: newName, sessionDays: sessionDays } : group
+    ));
+    toast({
+      title: 'Groupe modifié',
+      description: `Le groupe "${newName}" a été mis à jour.`,
+    });
+  };
+
   const deleteStudent = (studentId: string) => {
     setGroups(prevGroups => {
       return prevGroups.map(group => {
@@ -515,7 +527,7 @@ export default function Home() {
 
 
   const getNextSessionDate = useMemo(() => {
-    if (!selectedGroup || !selectedGroup.sessionDays) return new Date();
+    if (!selectedGroup || !selectedGroup.sessionDays || selectedGroup.sessionDays.length === 0) return new Date();
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -667,18 +679,29 @@ export default function Home() {
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>
-                  <Select value={selectedGroupId} onValueChange={setSelectedGroupId} disabled={!isHydrated}>
-                    <SelectTrigger className="w-full sm:w-[180px]">
-                      <SelectValue placeholder="Sélectionner un groupe" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {groups.map(group => (
-                        <SelectItem key={group.id} value={group.id}>
-                          {group.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center gap-1 w-full sm:w-auto">
+                    <Select value={selectedGroupId} onValueChange={setSelectedGroupId} disabled={!isHydrated}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Sélectionner un groupe" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {groups.map(group => (
+                          <SelectItem key={group.id} value={group.id}>
+                            {group.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setGroupToEdit(selectedGroup)}
+                      disabled={!selectedGroup}
+                      className="shrink-0"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </div>
                   <div className="relative w-full sm:w-auto">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -834,6 +857,18 @@ export default function Home() {
           }}
           open={!!studentToEdit}
           onOpenChange={(open) => !open && setStudentToEdit(null)}
+        />
+      )}
+
+      {groupToEdit && (
+        <EditGroupDialog
+          group={groupToEdit}
+          onUpdateGroup={(groupId, newName, sessionDays) => {
+            updateGroup(groupId, newName, sessionDays);
+            setGroupToEdit(null);
+          }}
+          open={!!groupToEdit}
+          onOpenChange={(open) => !open && setGroupToEdit(null)}
         />
       )}
 
