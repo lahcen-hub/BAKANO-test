@@ -58,6 +58,7 @@ import {
   Download,
   Search,
   UserPlus,
+  Pencil,
 } from 'lucide-react';
 import { AddStudentDialog } from '@/components/add-student-dialog';
 import { AddGroupDialog } from '@/components/add-group-dialog';
@@ -84,6 +85,7 @@ import {
 } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
+import { EditStudentDialog } from '@/components/edit-student-dialog';
 
 
 const initialGroups: Group[] = [
@@ -179,6 +181,7 @@ export default function Home() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedGroupId, setSelectedGroupId] = useState<string>('groupe-1');
   const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
+  const [studentToEdit, setStudentToEdit] = useState<Student | null>(null);
   const [showOnlyUnpaid, setShowOnlyUnpaid] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isHydrated, setIsHydrated] = useState(false);
@@ -323,6 +326,19 @@ export default function Home() {
     toast({
       title: 'Élève ajouté',
       description: `${name} a été ajouté au ${groups.find(g => g.id === groupId)?.name}.`,
+    });
+  };
+
+  const updateStudentName = (studentId: string, newName: string) => {
+    setGroups(prevGroups => prevGroups.map(group => ({
+      ...group,
+      students: group.students.map(s => 
+        s.id === studentId ? { ...s, name: newName } : s
+      )
+    })));
+    toast({
+      title: "Nom de l'élève modifié",
+      description: `Le nom a été changé en ${newName}.`,
     });
   };
 
@@ -777,14 +793,24 @@ export default function Home() {
                                 </Button>
                             </TableCell>
                             <TableCell className="text-right px-2 md:px-4">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => setStudentToDelete(student.id)}
-                              >
-                                <Trash2 className="h-4 w-4 text-destructive/70 hover:text-destructive" />
-                              </Button>
+                              <div className="flex items-center justify-end gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => setStudentToEdit(student)}
+                                >
+                                  <Pencil className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => setStudentToDelete(student.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive/70 hover:text-destructive" />
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         );
@@ -799,6 +825,17 @@ export default function Home() {
         </main>
       </div>
 
+      {studentToEdit && (
+        <EditStudentDialog
+          student={studentToEdit}
+          onUpdateStudent={(studentId, newName) => {
+            updateStudentName(studentId, newName);
+            setStudentToEdit(null);
+          }}
+          open={!!studentToEdit}
+          onOpenChange={(open) => !open && setStudentToEdit(null)}
+        />
+      )}
 
       <AlertDialog
         open={!!studentToDelete}
@@ -830,5 +867,3 @@ export default function Home() {
     </>
   );
 }
-
-    
