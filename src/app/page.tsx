@@ -15,6 +15,7 @@ import {
   nextDay,
   isThisWeek,
   subDays,
+  endOfMonth,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Student, AttendanceStatus } from '@/types';
@@ -441,7 +442,7 @@ export default function Home() {
       return;
     }
   
-    const doc = new jsPDF();
+    const doc = new jsPDF({ orientation: 'landscape' });
     const monthStr = format(currentDate, 'yyyy-MM');
     const monthStrFormatted = format(currentDate, 'MMMM yyyy', { locale: fr });
     
@@ -457,9 +458,9 @@ export default function Home() {
     const monthDates: Date[] = [];
     const sessionDays = selectedGroup.sessionDays || [];
     const start = startOfMonth(currentDate);
-    const end = addMonths(start, 1);
+    const end = endOfMonth(currentDate);
 
-    const daysInInterval = eachDayOfInterval({ start, end: subDays(end, 1) });
+    const daysInInterval = eachDayOfInterval({ start, end });
     
     daysInInterval.forEach(day => {
         if (sessionDays.includes(day.getDay())) {
@@ -484,6 +485,8 @@ export default function Home() {
         const attendanceRow = monthDates.map(d => {
             const dateStr = format(d, 'yyyy-MM-dd');
             const status = student.attendance[dateStr];
+
+            // Ne pas marquer d'absence pour les jours avant l'inscription
             if (isBefore(d, student.joinDate)) return '-';
             
             if (isSameMonth(new Date(dateStr), currentDate) && status === 'absent') {
