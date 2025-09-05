@@ -63,6 +63,7 @@ import {
   Search,
   UserPlus,
   Pencil,
+  UserCheck,
 } from 'lucide-react';
 import { AddStudentDialog } from '@/components/add-student-dialog';
 import { AddGroupDialog } from '@/components/add-group-dialog';
@@ -309,6 +310,34 @@ export default function Home() {
 
     return { totalPaid, totalUnpaid, potentialRevenue };
   }, [selectedGroup, currentDate]);
+  
+  const getNextSessionDate = useMemo(() => {
+    if (!selectedGroup || !selectedGroup.sessionDays || selectedGroup.sessionDays.length === 0) return new Date();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const sessionDays = selectedGroup.sessionDays.slice().sort((a, b) => a - b);
+    
+    for(let i=0; i<7; i++){
+      const nextDate = new Date(today);
+      nextDate.setDate(today.getDate() + i);
+      if(sessionDays.includes(nextDate.getDay())){
+        return nextDate;
+      }
+    }
+
+    return today;
+  }, [selectedGroup]);
+
+  const presentStudentsCount = useMemo(() => {
+    if (!selectedGroup) return 0;
+    const nextSessionDateStr = format(getNextSessionDate, 'yyyy-MM-dd');
+    return selectedGroup.students.filter(
+      (student) => student.attendance[nextSessionDateStr] === 'present'
+    ).length;
+  }, [selectedGroup, getNextSessionDate]);
+
 
   const addStudent = (name: string, groupId: string) => {
     const newStudent: Student = {
@@ -547,26 +576,6 @@ export default function Home() {
     });
   };
 
-
-  const getNextSessionDate = useMemo(() => {
-    if (!selectedGroup || !selectedGroup.sessionDays || selectedGroup.sessionDays.length === 0) return new Date();
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const sessionDays = selectedGroup.sessionDays.slice().sort((a, b) => a - b);
-    
-    for(let i=0; i<7; i++){
-      const nextDate = new Date(today);
-      nextDate.setDate(today.getDate() + i);
-      if(sessionDays.includes(nextDate.getDay())){
-        return nextDate;
-      }
-    }
-
-    return today;
-  }, [selectedGroup]);
-
   return (
     <>
       <div className="flex flex-col min-h-screen bg-background">
@@ -582,7 +591,7 @@ export default function Home() {
         </header>
 
         <main className="flex-1 container mx-auto p-2 md:p-6 space-y-6">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
@@ -621,6 +630,22 @@ export default function Home() {
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {showOnlyUnpaid ? 'Filtre activé, cliquez pour retirer' : 'Cliquez pour filtrer les non payés'}
+                </p>
+              </CardContent>
+            </Card>
+             <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Présence (proch. séance)
+                </CardTitle>
+                <UserCheck className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl md:text-2xl font-bold">
+                  {presentStudentsCount} / {selectedGroup?.students.length ?? 0}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Élèves présents dans {selectedGroup?.name ?? 'le groupe'}
                 </p>
               </CardContent>
             </Card>
