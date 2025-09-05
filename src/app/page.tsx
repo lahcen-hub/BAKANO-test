@@ -17,6 +17,7 @@ import {
   subDays,
   endOfMonth,
   eachDayOfIntervalWithOptions,
+  isAfter,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Student, AttendanceStatus } from '@/types';
@@ -475,22 +476,30 @@ export default function Home() {
         let absencesInMonth = 0;
         const attendanceRow = allDaysInMonth.map(d => {
           const dateStr = format(d, 'yyyy-MM-dd');
+          const groupSessionDays = group.sessionDays ?? [2, 5]; // Default to Tue/Fri if not set
           
-          if (!group.sessionDays.includes(d.getDay())) {
+          if (!groupSessionDays.includes(d.getDay())) {
             return '-'; // Not a session day for this group
           }
           
           const status = student.attendance[dateStr];
   
-          if (isBefore(d, student.joinDate) || (isAfter(d, new Date()) && !isToday(d))) {
+          if (isBefore(d, student.joinDate)) {
              return '';
           }
   
           if (status === 'absent') {
-            absencesInMonth++;
+            if (isSameMonth(d, currentDate)) {
+              absencesInMonth++;
+            }
             return 'A';
           }
           if (status === 'present') return 'P';
+          
+          if (isAfter(d, new Date()) && !isToday(d)) {
+            return ''; // Future session
+          }
+          
           return ''; // Not marked yet
         });
   
