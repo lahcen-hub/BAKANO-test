@@ -16,6 +16,7 @@ import {
   isThisWeek,
   subDays,
   endOfMonth,
+  eachDayOfIntervalWithOptions,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Student, AttendanceStatus } from '@/types';
@@ -433,10 +434,10 @@ export default function Home() {
   };
 
   const handleDownloadReport = () => {
-    if (!selectedGroup) {
+    if (groups.length === 0) {
       toast({
         title: 'Erreur',
-        description: 'Veuillez sélectionner un groupe pour télécharger le rapport.',
+        description: 'Aucun groupe à rapporter.',
         variant: 'destructive',
       });
       return;
@@ -445,90 +446,95 @@ export default function Home() {
     const doc = new jsPDF({ orientation: 'landscape' });
     const monthStr = format(currentDate, 'yyyy-MM');
     const monthStrFormatted = format(currentDate, 'MMMM yyyy', { locale: fr });
-    
+  
     doc.setFontSize(18);
-    doc.text(`Rapport pour ${selectedGroup.name} - ${monthStrFormatted}`, 14, 22);
-    
-    const head: any[] = [
+    doc.text(`Rapport pour tous les groupes - ${monthStrFormatted}`, 14, 22);
+  
+    const allDaysInMonth = eachDayOfInterval({
+      start: startOfMonth(currentDate),
+      end: endOfMonth(currentDate),
+    });
+  
+    const tableHead = [
       "Nom de l'eleve",
+      "Groupe",
       "Paiement",
       "Absences",
+      ...allDaysInMonth.map(d => format(d, 'dd')),
     ];
-    
-    const monthDates: Date[] = [];
-    const sessionDays = selectedGroup.sessionDays || [];
-    const start = startOfMonth(currentDate);
-    const end = endOfMonth(currentDate);
-
-    const daysInInterval = eachDayOfInterval({ start, end });
-    
-    daysInInterval.forEach(day => {
-        if (sessionDays.includes(day.getDay())) {
-            monthDates.push(day);
-        }
-    });
-
-    const tableHead = [
-      ...head,
-      ...monthDates.map(d => format(d, 'dd/MM'))
-    ];
-    
+  
     const tableBody: any[] = [];
-
-    selectedGroup.students.forEach(student => {
+  
+    groups.forEach(group => {
+      group.students.forEach(student => {
         const joinMonth = format(student.joinDate, 'yyyy-MM');
         if (joinMonth > monthStr) return;
-
+  
         const paymentStatus = student.payments[monthStr] === 'paid' ? 'Payé' : 'Non Payé';
-        
+  
         let absencesInMonth = 0;
-        const attendanceRow = monthDates.map(d => {
-            const dateStr = format(d, 'yyyy-MM-dd');
-            const status = student.attendance[dateStr];
-
-            // Ne pas marquer d'absence pour les jours avant l'inscription ou dans le futur
-            if (isBefore(d, student.joinDate) || isBefore(new Date(), d)) return '-';
-            
-            if (isSameMonth(new Date(dateStr), currentDate) && status === 'absent') {
-                absencesInMonth++;
-            }
-            if (status === 'absent') return 'A'; // Absent
-            if (status === 'present') return 'P'; // Present
-            return ''; // Empty for future or no status
+        const attendanceRow = allDaysInMonth.map(d => {
+          const dateStr = format(d, 'yyyy-MM-dd');
+          
+          if (!group.sessionDays.includes(d.getDay())) {
+            return '-'; // Not a session day for this group
+          }
+          
+          const status = student.attendance[dateStr];
+  
+          if (isBefore(d, student.joinDate) || (isAfter(d, new Date()) && !isToday(d))) {
+             return '';
+          }
+  
+          if (status === 'absent') {
+            absencesInMonth++;
+            return 'A';
+          }
+          if (status === 'present') return 'P';
+          return ''; // Not marked yet
         });
-
+  
         tableBody.push([
-            student.name,
-            paymentStatus,
-            absencesInMonth.toString(),
-            ...attendanceRow
+          student.name,
+          group.name,
+          paymentStatus,
+          absencesInMonth.toString(),
+          ...attendanceRow,
         ]);
+      });
     });
-
+  
     if (tableBody.length > 0) {
-        (doc as any).autoTable({
-            head: [tableHead],
-            body: tableBody,
-            startY: 30,
-            theme: 'striped',
-            headStyles: { fillColor: [41, 128, 185] },
-            styles: { font: 'helvetica', fontSize: 8 },
-            columnStyles: {
-                0: { cellWidth: 35 },
-                1: { cellWidth: 15 },
-                2: { cellWidth: 15, halign: 'center' },
+      (doc as any).autoTable({
+        head: [tableHead],
+        body: tableBody,
+        startY: 30,
+        theme: 'striped',
+        headStyles: { fillColor: [41, 128, 185], fontSize: 8 },
+        styles: { font: 'helvetica', fontSize: 8, cellPadding: 1.5 },
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: 20 },
+          2: { cellWidth: 15 },
+          3: { cellWidth: 15, halign: 'center' },
+        },
+        didParseCell: (data: any) => {
+            // Center align all date columns
+            if (data.column.index >= 4) {
+                data.cell.styles.halign = 'center';
             }
-        });
+        }
+      });
     } else {
-        doc.text("Aucun élève dans ce groupe pour le mois sélectionné.", 14, 40);
+      doc.text("Aucun élève trouvé pour le mois sélectionné.", 14, 40);
     }
-    
-    const reportFileName = `rapport_${selectedGroup.name.replace(/ /g, '_')}_${format(currentDate, 'MMMM_yyyy', { locale: fr })}.pdf`;
+  
+    const reportFileName = `rapport_tous_les_groupes_${format(currentDate, 'MMMM_yyyy', { locale: fr })}.pdf`;
     doc.save(reportFileName);
-
+  
     toast({
-        title: 'Rapport téléchargé',
-        description: `${reportFileName} a été téléchargé.`,
+      title: 'Rapport téléchargé',
+      description: `${reportFileName} a été téléchargé.`,
     });
   };
 
@@ -619,13 +625,13 @@ export default function Home() {
                       onClick={handleDownloadReport}
                       className="w-full"
                       size="sm"
-                      disabled={!isHydrated || !selectedGroup}
+                      disabled={!isHydrated || groups.length === 0}
                   >
                       <Download className="mr-2 h-4 w-4" />
-                      Télécharger PDF
+                      Télécharger PDF (Tous)
                   </Button>
                   <p className="text-xs text-muted-foreground mt-1">
-                      Rapport pour {selectedGroup?.name ?? '...'}
+                      Rapport pour tous les groupes
                   </p>
               </CardContent>
             </Card>
