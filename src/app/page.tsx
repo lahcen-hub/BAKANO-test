@@ -580,18 +580,29 @@ export default function Home() {
     <>
       <div className="flex flex-col min-h-screen bg-background">
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
-          <div className="container mx-auto flex h-16 items-center justify-center px-4 md:px-6 relative">
+          <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6 relative">
             <div className="flex items-center gap-2">
               <Waves className="h-8 w-8 text-primary" />
               <h1 className="text-xl md:text-2xl font-bold text-primary tracking-tight">
                 BAKANO
               </h1>
             </div>
+            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                <Button
+                    onClick={handleDownloadReport}
+                    variant="outline"
+                    size="sm"
+                    disabled={!isHydrated || groups.length === 0}
+                >
+                    <Download className="mr-2 h-4 w-4" />
+                    Rapport PDF
+                </Button>
+            </div>
           </div>
         </header>
 
         <main className="flex-1 container mx-auto p-2 md:p-6 space-y-6">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
@@ -647,26 +658,6 @@ export default function Home() {
                 <p className="text-xs text-muted-foreground">
                   Élèves présents dans {selectedGroup?.name ?? 'le groupe'}
                 </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Rapport Mensuel</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                  <Button
-                      onClick={handleDownloadReport}
-                      className="w-full"
-                      size="sm"
-                      disabled={!isHydrated || groups.length === 0}
-                  >
-                      <Download className="mr-2 h-4 w-4" />
-                      Télécharger PDF (Tous)
-                  </Button>
-                  <p className="text-xs text-muted-foreground mt-1">
-                      Rapport pour tous les groupes
-                  </p>
               </CardContent>
             </Card>
             <Card>
