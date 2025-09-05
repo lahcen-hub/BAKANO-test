@@ -249,7 +249,7 @@ export default function Home() {
 
     if (showOnlyUnpaid) {
       const currentMonthStr = format(currentDate, 'yyyy-MM');
-      return filteredStudents.filter(student => {
+      filteredStudents = filteredStudents.filter(student => {
         const paymentStatus = student.payments[currentMonthStr] ?? 'unpaid';
         return paymentStatus === 'unpaid';
       });
@@ -598,7 +598,7 @@ export default function Home() {
                   })}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {showOnlyUnpaid ? 'Filtre activé' : 'Mois en cours (groupe sél.)'}
+                  {showOnlyUnpaid ? 'Filtre activé, cliquez pour retirer' : 'Cliquez pour filtrer les non payés'}
                 </p>
               </CardContent>
             </Card>
@@ -650,7 +650,7 @@ export default function Home() {
                 <div>
                   <CardTitle className='flex items-center gap-2'>
                     Suivi des présences et paiements
-                    <Badge>{`Groupe: ${selectedGroup?.name ?? ''}`}</Badge>
+                    <Badge>{`${selectedGroup?.name ?? 'Chargement...'}`}</Badge>
                     {showOnlyUnpaid && <Badge variant="destructive">Élèves non payés</Badge>}
                   </CardTitle>
                   <CardDescription>
