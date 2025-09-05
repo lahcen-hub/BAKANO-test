@@ -486,8 +486,8 @@ export default function Home() {
             const dateStr = format(d, 'yyyy-MM-dd');
             const status = student.attendance[dateStr];
 
-            // Ne pas marquer d'absence pour les jours avant l'inscription
-            if (isBefore(d, student.joinDate)) return '-';
+            // Ne pas marquer d'absence pour les jours avant l'inscription ou dans le futur
+            if (isBefore(d, student.joinDate) || isBefore(new Date(), d)) return '-';
             
             if (isSameMonth(new Date(dateStr), currentDate) && status === 'absent') {
                 absencesInMonth++;
