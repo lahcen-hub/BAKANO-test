@@ -14,6 +14,7 @@ import {
   getDaysInMonth,
   nextDay,
   isThisWeek,
+  subDays,
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Student, AttendanceStatus } from '@/types';
@@ -446,8 +447,6 @@ export default function Home() {
     
     doc.setFontSize(18);
     doc.text(`Rapport pour ${selectedGroup.name} - ${monthStrFormatted}`, 14, 22);
-
-    const daysInMonth = getDaysInMonth(currentDate);
     
     const head: any[] = [
       "Nom de l'eleve",
@@ -457,12 +456,16 @@ export default function Home() {
     
     const monthDates: Date[] = [];
     const sessionDays = selectedGroup.sessionDays || [];
-    for (let i = 1; i <= daysInMonth; i++) {
-        const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
-        if (sessionDays.includes(date.getDay())) {
-            monthDates.push(date);
+    const start = startOfMonth(currentDate);
+    const end = addMonths(start, 1);
+
+    const daysInInterval = eachDayOfInterval({ start, end: subDays(end, 1) });
+    
+    daysInInterval.forEach(day => {
+        if (sessionDays.includes(day.getDay())) {
+            monthDates.push(day);
         }
-    }
+    });
 
     const tableHead = [
       ...head,
@@ -482,6 +485,7 @@ export default function Home() {
             const dateStr = format(d, 'yyyy-MM-dd');
             const status = student.attendance[dateStr];
             if (isBefore(d, student.joinDate)) return '-';
+            
             if (isSameMonth(new Date(dateStr), currentDate) && status === 'absent') {
                 absencesInMonth++;
             }
