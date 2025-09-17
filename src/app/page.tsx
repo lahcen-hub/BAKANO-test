@@ -64,7 +64,6 @@ import {
   UserPlus,
   Pencil,
   UserCheck,
-  Upload,
 } from 'lucide-react';
 import { AddStudentDialog } from '@/components/add-student-dialog';
 import { AddGroupDialog } from '@/components/add-group-dialog';
@@ -93,7 +92,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { EditStudentDialog } from '@/components/edit-student-dialog';
 import { EditGroupDialog } from '@/components/edit-group-dialog';
-import { extractDataFromPdf, type ExtractedData } from '@/ai/flows/extract-report-flow';
 
 
 const initialGroups: Group[] = [
@@ -194,7 +192,6 @@ export default function Home() {
   const [showOnlyUnpaid, setShowOnlyUnpaid] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isHydrated, setIsHydrated] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -577,83 +574,6 @@ export default function Home() {
       description: `${reportFileName} a été téléchargé.`,
     });
   };
-  
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsImporting(true);
-    toast({
-      title: "Traitement du rapport...",
-      description: "L'IA analyse votre PDF. Cela peut prendre un moment.",
-    });
-
-    try {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = async () => {
-        const pdfDataUri = reader.result as string;
-        const extractedData: ExtractedData = await extractDataFromPdf({ pdfDataUri });
-
-        setGroups(prevGroups => {
-          let newGroups = [...prevGroups];
-          
-          for (const extractedGroup of extractedData.groups) {
-            let groupExists = newGroups.find(g => g.name.toLowerCase() === extractedGroup.name.toLowerCase());
-            
-            if (!groupExists) {
-              const newGroup: Group = {
-                id: crypto.randomUUID(),
-                name: extractedGroup.name,
-                sessionDays: [2, 5], // Default, not extracted yet
-                students: []
-              };
-              newGroups.push(newGroup);
-              groupExists = newGroup;
-            }
-
-            for (const extractedStudent of extractedGroup.students) {
-              let studentExists = groupExists.students.find(s => s.name.toLowerCase() === extractedStudent.name.toLowerCase());
-
-              if (studentExists) {
-                // Update existing student
-                 studentExists.payments = { ...studentExists.payments, ...extractedStudent.payments };
-                 studentExists.attendance = { ...studentExists.attendance, ...extractedStudent.attendance };
-              } else {
-                // Add new student
-                const newStudent: Student = {
-                  id: crypto.randomUUID(),
-                  name: extractedStudent.name,
-                  joinDate: new Date(), // default
-                  monthlyFee: 200, // default
-                  ...extractedStudent
-                };
-                groupExists.students.push(newStudent);
-              }
-            }
-          }
-          
-          return newGroups;
-        });
-
-        toast({
-          title: "Importation réussie !",
-          description: "Les données du rapport ont été ajoutées à l'application.",
-        });
-      };
-    } catch (error) {
-      console.error("Error processing PDF:", error);
-      toast({
-        title: "Erreur d'importation",
-        description: "Impossible d'extraire les données du PDF. Veuillez vérifier le format du fichier.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsImporting(false);
-       // Reset file input
-      event.target.value = '';
-    }
-  };
 
 
   return (
@@ -668,20 +588,6 @@ export default function Home() {
               </h1>
             </div>
             <div className="flex items-center gap-2">
-                <input type="file" id="pdf-upload" accept="application/pdf" onChange={handleFileUpload} className="hidden" disabled={isImporting} />
-                <label htmlFor="pdf-upload">
-                  <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={!isHydrated || isImporting}
-                      asChild
-                  >
-                    <span>
-                      {isImporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                      {isImporting ? "Importation..." : "Importer un rapport"}
-                    </span>
-                  </Button>
-                </label>
                 <Button
                     onClick={handleDownloadReport}
                     variant="outline"
