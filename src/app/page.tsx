@@ -196,7 +196,7 @@ export default function Home() {
 
   useEffect(() => {
     try {
-      const savedGroups = localStorage.getItem('bakano-groups');
+      const savedGroups = localStorage.getItem('piscinemanager-groups');
       if (savedGroups) {
         const parsedGroups = JSON.parse(savedGroups, (key, value) => {
           if (key === 'joinDate' && value) {
@@ -222,7 +222,7 @@ export default function Home() {
   useEffect(() => {
     if (isHydrated) {
       try {
-        localStorage.setItem('bakano-groups', JSON.stringify(groups));
+        localStorage.setItem('piscinemanager-groups', JSON.stringify(groups));
       } catch (error) {
         console.error("Could not save groups to localStorage", error);
       }
@@ -584,7 +584,7 @@ export default function Home() {
             <div className="flex items-center gap-2">
               <Waves className="h-8 w-8 text-primary" />
               <h1 className="text-xl md:text-2xl font-bold text-primary tracking-tight">
-                BAKANO
+                PiscineManager
               </h1>
             </div>
             <div className="flex items-center gap-2">
