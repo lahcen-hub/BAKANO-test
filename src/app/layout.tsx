@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 export const metadata: Metadata = {
   title: 'PiscineManager',
   description: 'Votre assistant de natation',
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({

@@ -1,0 +1,27 @@
+{
+  "name": "PiscineManager",
+  "short_name": "PiscineManager",
+  "description": "Votre assistant de natation pour gérer les élèves, la présence et les paiements.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#E6F0FF",
+  "theme_color": "#4A90E2",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
